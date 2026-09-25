@@ -16,15 +16,16 @@
 
 html, body {
   margin: 0;
-  height: 100%;
   background: var(--bg);
   color: var(--fg);
   font: 15px/1.5 "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
 }
 
+/* 視窗夠高時填滿；不夠高時讓頁面捲動，不擠壓地圖。 */
 body {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .topbar {
@@ -197,7 +198,8 @@ body {
 
 #map {
   flex: 1 1 auto;
-  min-height: 0;
+  /* 篩選列在窄視窗會換成多行，若 min-height 為 0，地圖會被擠成零高度。 */
+  min-height: 300px;
   background: var(--panel);
 }
 

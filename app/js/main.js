@@ -100,10 +100,11 @@ function buildControls() {
 function renderSummary(sw, sc, cr) {
   const total = sw.count || 1;
   const pct = (n) => `${Math.round((100 * n) / total)}%`;
+  // 缺整個資料集時顯示「未提供」，不顯示為 0（road-segments spec）
   const bandCells = WIDTH_BANDS.map((b) => `
-    <span class="stat"><i style="--c:${b.color}"></i>
-      <b>${sw.bands[b.id].toLocaleString()}</b>
-      <span class="unit">段 ${pct(sw.bands[b.id])}</span>
+    <span class="stat${sw.missing ? ' pending' : ''}"><i style="--c:${b.color}"></i>
+      <b>${sw.missing ? '未提供' : sw.bands[b.id].toLocaleString()}</b>
+      ${sw.missing ? '' : `<span class="unit">段 ${pct(sw.bands[b.id])}</span>`}
       <span class="lbl">${b.label}</span></span>`).join('');
 
   // 「查無人行道紀錄」需道路中心線圖層才能計算（task 3b），尚未實作。
@@ -135,21 +136,31 @@ function renderSummary(sw, sc, cr) {
 async function refresh({ fit = false } = {}) {
   if (state.busy) return;
   state.busy = true;
-  const county = state.county;
   const radius = profileOf(state.profile).radius;
+
+  // 三份政府資料的縣市用字不一致（人行道寫「台北市」，學校與事故
+  // 寫「臺北市」）。介面一律用正規化後的名稱，載入時才換回各資料集
+  // 自己的檔名。
+  const rec = state.counties.find((c) => c.name === state.county);
+  const file = rec?.files ?? {};
 
   try {
     if (!state.show.sidewalk) sidewalk.clear(map);
     if (!state.show.schools) schools.clear(map);
     if (!state.show.crashes) crashes.clear(map);
 
-    const sw = await sidewalk.render(map, county, {
-      onProgress: setStatus, visible: state.show.sidewalk,
-    });
-    const sc = await schools.render(map, county, {
-      levels: [...state.levels], radius, visible: state.show.schools,
-    });
-    const cr = await crashes.render(map, county, { visible: state.show.crashes });
+    const sw = file.sidewalk
+      ? await sidewalk.render(map, file.sidewalk, {
+          onProgress: setStatus, visible: state.show.sidewalk })
+      : { county: state.county, count: 0, bands: { lt15: 0, b1525: 0, gte25: 0 },
+          dataYm: null, missing: true };
+    const sc = file.schools
+      ? await schools.render(map, file.schools, {
+          levels: [...state.levels], radius, visible: state.show.schools })
+      : { county: state.county, count: 0, total: 0, levels: {}, missing: true };
+    const cr = file.crashes
+      ? await crashes.render(map, file.crashes, { visible: state.show.crashes })
+      : { county: state.county, count: 0, deaths: 0, pedestrian: 0, years: [], missing: true };
 
     if (fit) {
       const src = schools.getLayers().blockLayer ?? sidewalk.getLayer?.();
