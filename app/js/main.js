@@ -20,9 +20,10 @@ function initMap() {
     attributionControl: false,
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  // 國土測繪中心「通用版電子地圖」WMTS。免金鑰，中文地名，圖磚含其版本浮水印。
+  // 注意路徑順序為 {z}/{y}/{x}，與多數圖磚服務的 {z}/{x}/{y} 相反。
+  L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', {
     maxZoom: 20,
-    subdomains: 'abcd',
   }).addTo(map);
 
   return map;

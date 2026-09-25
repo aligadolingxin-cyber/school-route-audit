@@ -71,6 +71,13 @@ body {
   background: var(--panel);
 }
 
+/* 底圖降飽和。NLSC 通用電子地圖的道路本身是彩色的，會與淨寬分級的
+   紅／黃／綠爭奪語意（design D4）。降飽和後地名與路網仍可讀，
+   顏色則讓給資料層。 */
+#map .leaflet-tile-pane {
+  filter: saturate(0.25) brightness(1.06) contrast(0.92);
+}
+
 /* 圖例：固定於地圖下側，不隨地圖移動（road-segments spec） */
 .legend {
   flex: 0 0 auto;

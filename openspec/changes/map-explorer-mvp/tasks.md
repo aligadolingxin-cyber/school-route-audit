@@ -12,7 +12,7 @@
 
 ## 2. 專案骨架與部署
 
-- [ ] 2.1 建立目錄結構（`app/`、`pipeline/`、`app/data/`、`docs/`）與 `.gitignore`，確認原始下載檔未被追蹤、處理後的分縣市檔案**有**被追蹤（design D11）
+- [x] 2.1 建立目錄結構與 `.gitignore` — 已完成，`git ls-files` 確認 `data/raw/` 未被追蹤；repo 已推送至 `aligadolingxin-cyber/school-route-audit`
 - [ ] 2.2 建立靜態網站骨架與本機預覽方式，於瀏覽器開啟得到可運作的空白地圖
 - [ ] 2.3 設定 GitHub Pages 部署（公開版本庫），取得 `*.github.io` 網址並自外部裝置確認可開啟
 - [ ] 2.4 將 Google Maps 金鑰的 HTTP referrer 限制設為該 Pages 網域並設定用量上限，以非授權網域載入驗證金鑰被拒
