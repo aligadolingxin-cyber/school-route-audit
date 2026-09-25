@@ -1,0 +1,1 @@
+{"source":"OpenStreetMap","licence":"ODbL 1.0","note":"僅含查無人行道紀錄的道路；有人行道者由人行道圖層呈現。","counties":[{"county":"臺北市","file":"臺北市.geojson","buffer_m":20.0,"roads_total":25780,"roads_no_record":8422,"km_total":3342.6,"km_no_record":1008.6}]}

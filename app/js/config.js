@@ -61,5 +61,6 @@ export const CRASH_KINDS = [
 export const CRASH_COLOR = Object.fromEntries(CRASH_KINDS.map((k) => [k.id, k.color]));
 
 export const SIDEWALK_BASE = 'data/sidewalk';
+export const ROAD_BASE = 'data/roads';
 export const SCHOOL_BASE = 'data/schools';
 export const CRASH_BASE = 'data/crashes';

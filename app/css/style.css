@@ -173,6 +173,22 @@ body {
   border: 1.5px solid var(--c);
 }
 
+/* 道路為線、人行道為面——統計摘要的色塊形狀呼應幾何型別 */
+.stat i.line {
+  height: 0;
+  border-radius: 0;
+  background: none;
+  border: 0;
+  border-top: 3px solid var(--c);
+  align-self: center;
+  width: 14px;
+}
+
+.stat-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .stat b { font-size: 16px; font-weight: 650; }
 .stat .unit { color: var(--muted); font-size: 12px; }
 .stat .lbl { color: var(--muted); }

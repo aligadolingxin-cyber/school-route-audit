@@ -3,6 +3,7 @@
 import { SCHOOL_LEVELS, WALKSHED_PROFILES, DEFAULT_PROFILE, WIDTH_BANDS } from './config.js';
 import { loadCounties } from './counties.js';
 import * as sidewalk from './sidewalk.js';
+import * as roads from './roads.js';
 import * as schools from './schools.js';
 import * as crashes from './crashes.js';
 
@@ -22,7 +23,7 @@ const state = {
   county: DEFAULT_COUNTY,
   levels: new Set(['國小', '國中']),
   profile: DEFAULT_PROFILE,
-  show: { sidewalk: true, schools: true, crashes: true },
+  show: { sidewalk: true, roads: true, schools: true, crashes: true },
   counties: [],
   busy: false,
 };
@@ -85,7 +86,7 @@ function buildControls() {
     refresh();
   });
 
-  const layerLabels = { sidewalk: '人行道', schools: '學校', crashes: 'A1 事故' };
+  const layerLabels = { sidewalk: '人行道', roads: '查無紀錄道路', schools: '學校', crashes: 'A1 事故' };
   el.layers.innerHTML = Object.entries(layerLabels).map(([k, label]) => `
     <label class="chip">
       <input type="checkbox" value="${k}"${state.show[k] ? ' checked' : ''}>
@@ -97,7 +98,7 @@ function buildControls() {
   });
 }
 
-function renderSummary(sw, sc, cr) {
+function renderSummary(sw, rd, sc, cr) {
   const total = sw.count || 1;
   const pct = (n) => `${Math.round((100 * n) / total)}%`;
   // 缺整個資料集時顯示「未提供」，不顯示為 0（road-segments spec）
@@ -107,12 +108,23 @@ function renderSummary(sw, sc, cr) {
       ${sw.missing ? '' : `<span class="unit">段 ${pct(sw.bands[b.id])}</span>`}
       <span class="lbl">${b.label}</span></span>`).join('');
 
-  // 「查無人行道紀錄」需道路中心線圖層才能計算（task 3b），尚未實作。
-  // 在那之前明確標示為未計，不以空白或 0 帶過。
-  const pending = `
-    <span class="stat pending"><i style="--c:#8A8A8A"></i>
-      <b>—</b><span class="unit">未計</span>
-      <span class="lbl">查無人行道紀錄</span></span>`;
+  // 查無紀錄的分母是「道路段數」，與上一列人行道段數不同，
+  // 故另起一列並各自標明分母，不把兩種單位並排成同一個百分比。
+  const roadRow = rd.stats
+    ? `<div class="stat-row">
+        <span class="stat"><i class="line" style="--c:#8A8A8A"></i>
+          <b>${rd.stats.roads_no_record.toLocaleString()}</b>
+          <span class="unit">段 ${Math.round(100 * rd.stats.roads_no_record / rd.stats.roads_total)}%
+            · ${rd.stats.km_no_record} km</span>
+          <span class="lbl">查無人行道紀錄</span></span>
+        <span class="stat-note">道路共 ${rd.stats.roads_total.toLocaleString()} 段／${rd.stats.km_total} km
+          ・以鄰近 ${rd.stats.buffer_m} m 判定</span>
+      </div>`
+    : `<div class="stat-row">
+        <span class="stat pending"><i class="line" style="--c:#8A8A8A"></i>
+          <b>未計</b><span class="lbl">查無人行道紀錄</span></span>
+        <span class="stat-note">此縣市尚未產生道路圖層</span>
+      </div>`;
 
   const levelText = SCHOOL_LEVELS
     .filter((s) => state.levels.has(s.id))
@@ -123,7 +135,10 @@ function renderSummary(sw, sc, cr) {
     : `${cr.count} 場／死亡 ${cr.deaths} 人，其中行人 ${cr.pedestrian} 場`;
 
   el.summary.innerHTML = `
-    <div class="stat-row">${bandCells}${pending}</div>
+    <div class="stat-row">${bandCells}
+      <span class="stat-note">有人行道紀錄者共 ${sw.count.toLocaleString()} 段</span>
+    </div>
+    ${roadRow}
     <div class="stat-line">
       <span>學校 <b>${sc.count}</b> 處（${levelText}）</span>
       <span>A1 事故 <b>${crashText}</b>${cr.years?.length ? `，${cr.years.join('、')}` : ''}</span>
@@ -146,8 +161,13 @@ async function refresh({ fit = false } = {}) {
 
   try {
     if (!state.show.sidewalk) sidewalk.clear(map);
+    if (!state.show.roads) roads.clear(map);
     if (!state.show.schools) schools.clear(map);
     if (!state.show.crashes) crashes.clear(map);
+
+    const rdStats = await roads.statsFor(state.county);
+    const rd = { stats: rdStats };
+    await roads.render(map, state.county, { visible: state.show.roads });
 
     const sw = file.sidewalk
       ? await sidewalk.render(map, file.sidewalk, {
@@ -167,9 +187,9 @@ async function refresh({ fit = false } = {}) {
       if (src?.getBounds && src.getBounds().isValid()) map.fitBounds(src.getBounds());
     }
 
-    renderSummary(sw, sc, cr);
+    renderSummary(sw, rd, sc, cr);
     setStatus('');
-    console.info('[圖層]', { sidewalk: sw, schools: sc, crashes: cr });
+    console.info('[圖層]', { sidewalk: sw, roads: rd, schools: sc, crashes: cr });
   } catch (err) {
     setStatus(err.message, 'error');
     el.summary.innerHTML = '';
