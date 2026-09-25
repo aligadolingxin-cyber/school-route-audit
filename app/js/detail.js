@@ -197,6 +197,7 @@ export function panelHtml(kind, p, crashes, { inCompare = false } = {}) {
     </section>
 
     <div class="detail-actions">
+      <button id="detail-pano">開啟街景</button>
       <button id="detail-compare"${inCompare ? ' disabled' : ''}>
         ${inCompare ? '已加入比較' : '加入比較'}
       </button>

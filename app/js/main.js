@@ -3,6 +3,7 @@
 import { SCHOOL_LEVELS, WALKSHED_PROFILES, DEFAULT_PROFILE, WIDTH_BANDS } from './config.js';
 import { loadCounties } from './counties.js';
 import { panelHtml, nearbyCrashes } from './detail.js';
+import * as streetview from './streetview.js';
 import * as sidewalk from './sidewalk.js';
 import * as roads from './roads.js';
 import * as schools from './schools.js';
@@ -19,6 +20,11 @@ const el = {
   layers: document.getElementById('layers'),
   summary: document.getElementById('summary'),
   detail: document.getElementById('detail'),
+  panoWrap: document.getElementById('pano-wrap'),
+  pano: document.getElementById('pano'),
+  panoTitle: document.getElementById('pano-title'),
+  panoDate: document.getElementById('pano-date'),
+  panoMsg: document.getElementById('pano-msg'),
 };
 
 // 選取狀態。選取樣式直接套在被點的圖層上，解除時以 resetStyle 還原。
@@ -162,6 +168,7 @@ function clearSelection() {
   selected = null;
   el.detail.hidden = true;
   el.detail.innerHTML = '';
+  closePano();
 }
 
 async function select(kind, feature, layer) {
@@ -178,11 +185,103 @@ async function select(kind, feature, layer) {
   el.detail.hidden = false;
   el.detail.scrollTop = 0;
   document.getElementById('detail-close')?.addEventListener('click', clearSelection);
+  document.getElementById('detail-pano')?.addEventListener('click', () => {
+    openPano(feature, feature.properties.NAME ?? feature.properties.name ?? '（無路名）');
+  });
   document.getElementById('detail-compare')?.addEventListener('click', (e) => {
     // 比較面板為 task 12；此處先確認入口存在且可回饋
     e.target.disabled = true;
     e.target.textContent = '比較面板尚未實作';
   });
+}
+
+// ---- 街景 ----------------------------------------------------------------
+
+// 地圖上標示全景所在位置與朝向。Leaflet 不是 google.maps.Map，
+// 拿不到 setStreetView 的自動連動，故自行維護這個圖示。
+let panoMarker = null;
+
+function showPanoMarker(lat, lng, heading) {
+  const icon = L.divIcon({
+    className: 'pano-marker',
+    html: `<span class="cone" style="--h:${heading ?? 0}deg"></span><span class="dot"></span>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+  });
+  if (panoMarker) panoMarker.setLatLng([lat, lng]).setIcon(icon);
+  else panoMarker = L.marker([lat, lng], { icon, interactive: false, zIndexOffset: 800 }).addTo(map);
+}
+
+function closePano() {
+  streetview.close();
+  el.panoWrap.hidden = true;
+  if (panoMarker) {
+    map.removeLayer(panoMarker);
+    panoMarker = null;
+  }
+}
+
+function panoMessage(text) {
+  el.panoWrap.hidden = false;
+  el.pano.style.display = 'none';
+  el.panoMsg.hidden = false;
+  el.panoMsg.textContent = text;
+}
+
+async function openPano(feature, label) {
+  const [lng, lat] = centroidOf(feature.geometry);
+  el.panoTitle.textContent = label;
+  el.panoDate.textContent = '';
+
+  if (!streetview.hasKey()) {
+    panoMessage(streetview.unavailableReason());
+    return;
+  }
+
+  el.panoWrap.hidden = false;
+  el.pano.style.display = '';
+  el.panoMsg.hidden = true;
+
+  try {
+    const found = await streetview.probe(lat, lng);
+    if (!found) {
+      // spec：此處無影像時明確告知，不顯示別處的影像
+      panoMessage('此位置沒有街景影像。');
+      return;
+    }
+    el.panoDate.textContent = found.imageDate ? `影像 ${found.imageDate}` : '影像日期未提供';
+    const heading = bearing(found.lat, found.lng, lat, lng);
+    showPanoMarker(found.lat, found.lng, heading);
+    await streetview.open(el.pano, {
+      lat: found.lat, lng: found.lng, heading,
+      onMove: ({ lat: y, lng: x, heading: h }) => showPanoMarker(y, x, h),
+    });
+  } catch (err) {
+    panoMessage(err.message);
+    console.error(err);
+  }
+}
+
+/** 幾何的概略中心，供街景定位。 */
+function centroidOf(g) {
+  const pts = [];
+  const walk = (c) => {
+    if (typeof c[0] === 'number') pts.push(c);
+    else c.forEach(walk);
+  };
+  walk(g.coordinates);
+  const n = pts.length || 1;
+  return [pts.reduce((s, p) => s + p[0], 0) / n, pts.reduce((s, p) => s + p[1], 0) / n];
+}
+
+/** 自全景位置看向目標的方位角，使初始視角朝著被點的路段。 */
+function bearing(lat1, lon1, lat2, lon2) {
+  const r = Math.PI / 180;
+  const dLon = (lon2 - lon1) * r;
+  const y = Math.sin(dLon) * Math.cos(lat2 * r);
+  const x = Math.cos(lat1 * r) * Math.sin(lat2 * r)
+          - Math.sin(lat1 * r) * Math.cos(lat2 * r) * Math.cos(dLon);
+  return (Math.atan2(y, x) / r + 360) % 360;
 }
 
 // ---- 繪製 ----------------------------------------------------------------
@@ -249,6 +348,7 @@ async function start() {
       state.county = state.counties[0]?.name ?? '';
     }
     buildControls();
+    document.getElementById('pano-close')?.addEventListener('click', closePano);
     await refresh({ fit: true });
   } catch (err) {
     setStatus(err.message, 'error');

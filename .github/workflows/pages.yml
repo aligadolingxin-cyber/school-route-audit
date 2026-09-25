@@ -51,10 +51,21 @@ jobs:
       # 進入點加版本號還不夠：main.js 內部的 import './config.js' 沒有
       # 版本號就仍會取到快取，症狀是「模組沒有匯出某個名稱」的語法錯誤，
       # 而伺服器上的檔案其實是對的。故相對 import 也一併改寫。
-      - name: 注入版本號
+      - name: 注入版本號與金鑰
+        env:
+          GMAPS_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           SHA="${GITHUB_SHA::7}"
           sed -i "s/__BUILD__/${SHA}/g" app/index.html
+          # 未設定 secret 時置換為空字串，前端據此停用街景並說明原因。
+          # 此金鑰在前端必然可見，安全性依靠 Google 端的 referrer 限制。
+          if [ -n "$GMAPS_KEY" ]; then
+            sed -i "s|__GOOGLE_MAPS_KEY__|${GMAPS_KEY}|g" app/index.html
+            echo "已注入 Google Maps 金鑰"
+          else
+            sed -i "s|__GOOGLE_MAPS_KEY__||g" app/index.html
+            echo "未設定 GOOGLE_MAPS_API_KEY，街景將停用"
+          fi
           sed -i -E "s#(from ['\"]\./[^'\"]+\.js)(['\"])#\1?v=${SHA}\2#g" app/js/*.js
           echo "--- index.html ---"
           grep -o "?v=${SHA}" app/index.html | wc -l

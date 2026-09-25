@@ -9,6 +9,9 @@
       crossorigin="anonymous" referrerpolicy="no-referrer">
 <!-- ?v= 由部署流程替換為 commit SHA，避免回訪者取到快取的舊版 -->
 <link rel="stylesheet" href="css/style.css?v=__BUILD__">
+<!-- 由部署流程自 GitHub Actions secret 注入。未設定時街景停用，其餘功能不受影響。
+     此金鑰在前端必然可見，安全性依靠 Google Cloud Console 的 HTTP referrer 限制。 -->
+<script>window.__GMAPS_KEY__ = '__GOOGLE_MAPS_KEY__';</script>
 </head>
 <body>
 
@@ -47,6 +50,15 @@
   <div class="map-wrap">
     <div id="map" role="application" aria-label="地圖"></div>
     <aside class="detail" id="detail" hidden aria-label="路段詳細"></aside>
+    <section class="pano-wrap" id="pano-wrap" hidden aria-label="街景">
+      <header class="pano-head">
+        <span id="pano-title"></span>
+        <span class="pano-date" id="pano-date"></span>
+        <button class="close" id="pano-close" aria-label="關閉街景">×</button>
+      </header>
+      <div id="pano"></div>
+      <p class="pano-msg" id="pano-msg" hidden></p>
+    </section>
   </div>
 
   <!-- 圖例固定於地圖下側，文字與顏色並用（road-segments spec） -->

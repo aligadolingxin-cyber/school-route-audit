@@ -344,6 +344,89 @@ body {
 
 .detail-actions button:disabled { color: var(--muted); cursor: default; }
 
+/* ---- 街景面板 ---- */
+
+.pano-wrap {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: min(460px, calc(100% - 20px));
+  height: min(300px, 55%);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .18);
+  z-index: 500;
+}
+
+.pano-wrap[hidden] { display: none; }
+
+.pano-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px 5px 11px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  flex: 0 0 auto;
+}
+
+.pano-head > span:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pano-date {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#pano { flex: 1 1 auto; min-height: 0; }
+
+.pano-msg {
+  margin: 0;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.pano-msg[hidden] { display: none; }
+
+/* 地圖上的全景位置與朝向。Leaflet 不是 google.maps.Map，
+   拿不到自動連動，故自行繪製。 */
+.pano-marker { position: relative; }
+
+.pano-marker .cone {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--h));
+  background: conic-gradient(from -30deg,
+              rgba(78, 121, 167, .45) 0deg,
+              rgba(78, 121, 167, .45) 60deg,
+              transparent 60deg);
+  border-radius: 50%;
+}
+
+.pano-marker .dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background: #4E79A7;
+  box-shadow: 0 0 0 2px #fff;
+}
+
 /* 底圖降飽和。NLSC 通用電子地圖的道路本身是彩色的，會與淨寬分級的
    紅／黃／綠爭奪語意（design D4）。降飽和後地名與路網仍可讀，
    顏色則讓給資料層。 */
