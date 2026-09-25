@@ -33,12 +33,25 @@ jobs:
 
       # 以 commit SHA 取代 __BUILD__，使每次部署的 CSS/JS 網址都不同。
       # 沒有這一步，瀏覽器會沿用快取的舊版模組，改動不會生效。
+      #
+      # 進入點加版本號還不夠：main.js 內部的 import './config.js' 沒有
+      # 版本號就仍會取到快取，症狀是「模組沒有匯出某個名稱」的語法錯誤，
+      # 而伺服器上的檔案其實是對的。故相對 import 也一併改寫。
       - name: 注入版本號
         run: |
-          sed -i "s/__BUILD__/${GITHUB_SHA::7}/g" app/index.html
-          grep -c "${GITHUB_SHA::7}" app/index.html
+          SHA="${GITHUB_SHA::7}"
+          sed -i "s/__BUILD__/${SHA}/g" app/index.html
+          sed -i -E "s#(from ['\"]\./[^'\"]+\.js)(['\"])#\1?v=${SHA}\2#g" app/js/*.js
+          echo "--- index.html ---"
+          grep -o "?v=${SHA}" app/index.html | wc -l
+          echo "--- js imports ---"
+          grep -ho "?v=${SHA}" app/js/*.js | wc -l
           if grep -q "__BUILD__" app/index.html; then
-            echo "仍有未替換的 __BUILD__" >&2
+            echo "仍有未替換的 __BUILD__" >&2; exit 1
+          fi
+          if grep -qE "from ['\"]\./[^'\"]+\.js['\"]" app/js/*.js; then
+            echo "仍有未加版本號的相對 import" >&2
+            grep -nE "from ['\"]\./[^'\"]+\.js['\"]" app/js/*.js >&2
             exit 1
           fi
 
