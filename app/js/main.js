@@ -25,6 +25,8 @@ const el = {
   panoTitle: document.getElementById('pano-title'),
   panoDate: document.getElementById('pano-date'),
   panoMsg: document.getElementById('pano-msg'),
+  filters: document.getElementById('filters'),
+  filtersToggle: document.getElementById('filters-toggle'),
 };
 
 // 選取狀態。選取樣式直接套在被點的圖層上，解除時以 resetStyle 還原。
@@ -156,6 +158,34 @@ function renderSummary(sw, rd, sc, cr) {
       <span>A1 事故 <b>${crashText}</b>${cr.years?.length ? `，${cr.years.join('、')}` : ''}</span>
       <span>人行道資料 ${sw.dataYm ?? '未提供'}</span>
     </div>`;
+}
+
+/**
+ * 篩選列收合。
+ *
+ * 窄視窗下篩選列會佔掉整個畫面，地圖被推到摺線以下。收合狀態記在
+ * localStorage——那是每台瀏覽器的偏好，不需要跨裝置同步。讀寫都包
+ * try/catch：無痕視窗或封鎖網站資料時存取會擲錯。
+ */
+function initFiltersToggle() {
+  const KEY = 'filters-collapsed';
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(KEY) === '1';
+  } catch { /* 無痕視窗等情形，維持展開 */ }
+
+  const apply = () => {
+    el.filters.hidden = collapsed;
+    el.filtersToggle.setAttribute('aria-expanded', String(!collapsed));
+    map?.invalidateSize();
+  };
+  apply();
+
+  el.filtersToggle.addEventListener('click', () => {
+    collapsed = !collapsed;
+    try { localStorage.setItem(KEY, collapsed ? '1' : '0'); } catch { /* 同上 */ }
+    apply();
+  });
 }
 
 // ---- 選取與詳細面板 ------------------------------------------------------
@@ -348,6 +378,7 @@ async function start() {
       state.county = state.counties[0]?.name ?? '';
     }
     buildControls();
+    initFiltersToggle();
     document.getElementById('pano-close')?.addEventListener('click', closePano);
     await refresh({ fit: true });
   } catch (err) {

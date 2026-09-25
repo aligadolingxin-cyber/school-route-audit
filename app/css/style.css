@@ -21,22 +21,27 @@ html, body {
   font: 15px/1.5 "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
 }
 
-/* 視窗夠高時填滿；不夠高時讓頁面捲動，不擠壓地圖。 */
+/* 版面填滿視窗，地圖永遠可見。
+   篩選列在窄視窗會佔掉整個畫面，故它可收合、展開時自行捲動，
+   不推擠地圖。 */
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .topbar {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 9px 16px;
   border-bottom: 1px solid var(--line);
   flex: 0 0 auto;
 }
+
+.topbar .title { margin-right: auto; }
 
 .topbar h1 {
   margin: 0;
@@ -62,13 +67,42 @@ body {
 /* ---- 篩選列 ---- */
 
 .filters {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: 38vh;
+  overflow-y: auto;
 }
+
+.filters[hidden] { display: none; }
+
+.toggle {
+  font: inherit;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle .caret {
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+  border-top-color: currentColor;
+  margin-top: 2px;
+  transition: transform .15s;
+}
+
+.toggle[aria-expanded="false"] .caret { transform: rotate(-90deg); }
 
 .filter-row {
   display: flex;
@@ -145,6 +179,8 @@ body {
   padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
+  max-height: 26vh;
+  overflow-y: auto;
 }
 
 .summary:empty { display: none; }
@@ -216,8 +252,8 @@ body {
   flex: 1 1 auto;
   position: relative;
   display: flex;
-  /* 篩選列在窄視窗會換成多行，若 min-height 為 0，地圖會被擠成零高度。 */
-  min-height: 380px;
+  /* 篩選列可收合且自行捲動，故地圖只需一個不致消失的下限 */
+  min-height: 220px;
 }
 
 #map {
@@ -524,7 +560,23 @@ body {
 .attribution span { margin-right: 4px; }
 .attribution a { color: inherit; }
 
-@media (max-width: 640px) {
-  .topbar { flex-direction: column; gap: 4px; }
+/* 窄視窗：詳細面板與街景面板各佔上下半，不互相遮蔽。
+   寬視窗下兩者一右一左，本來就不重疊。 */
+@media (max-width: 760px) {
+  .detail {
+    left: 10px;
+    right: 10px;
+    bottom: auto;
+    width: auto;
+    max-height: 48%;
+  }
+
+  .pano-wrap {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    height: 46%;
+  }
+
   .legend { gap: 6px 12px; font-size: 12px; }
 }
