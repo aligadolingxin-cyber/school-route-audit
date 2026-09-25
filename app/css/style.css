@@ -497,8 +497,12 @@ body {
     scrollbar-width: thin;
   }
 
-  .legend-sep { min-width: 1px; }
-  .legend-group-label { position: sticky; left: 0; }
+  /* 不換行的彈性容器會壓縮子項。文字項目必須明確禁止收縮，
+     否則標籤會被擠成直書。 */
+  .legend > * { flex: 0 0 auto; }
+  .legend-group-label,
+  .legend-item { white-space: nowrap; }
+  .legend-sep { width: 1px; min-width: 1px; }
 }
 
 .legend-group-label {
