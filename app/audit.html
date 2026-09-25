@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>評估工作台｜學區道路健檢</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+      integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="css/style.css?v=__BUILD__">
 <link rel="stylesheet" href="css/audit.css?v=__BUILD__">
 <!-- 與地圖共用同一把金鑰，由部署流程注入 -->
@@ -31,7 +34,11 @@
     <header class="pane-head">
       <span id="pano-title">—</span>
       <span class="pano-date" id="pano-date"></span>
+      <button class="mini-toggle" id="mini-toggle" aria-pressed="true" aria-controls="mini-map">
+        地圖
+      </button>
     </header>
+    <div id="mini-map" aria-label="所在路段"></div>
     <div id="pano"></div>
     <p class="pano-msg" id="pano-msg" hidden></p>
   </section>
@@ -68,6 +75,9 @@
   <button id="btn-next">下一個 →</button>
 </nav>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+        integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="module" src="js/audit.js?v=__BUILD__"></script>
 </body>
 </html>

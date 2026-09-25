@@ -53,6 +53,37 @@ body.audit { height: 100dvh; overflow: hidden; }
   white-space: nowrap;
 }
 
+/* 定位小地圖：只回答「紅色的就是你現在評的那段」。 */
+#mini-map {
+  flex: 0 0 auto;
+  height: 38%;
+  min-height: 150px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+#mini-map[hidden] { display: none; }
+
+.mini-toggle {
+  margin-left: auto;
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mini-toggle[aria-pressed="true"] {
+  background: #1f2d3d;
+  border-color: #1f2d3d;
+  color: #fff;
+}
+
+.pane-head .pano-date { margin-left: 0; }
+
 #pano { flex: 1 1 auto; min-height: 0; }
 
 .unit-head {

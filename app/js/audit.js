@@ -3,6 +3,7 @@
 import * as data from './audit-data.js';
 import * as store from './audit-store.js';
 import * as streetview from './streetview.js';
+import * as miniMap from './audit-map.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -163,6 +164,7 @@ async function show(i) {
   renderScore(u);
   renderProgress();
   renderPicker();
+  miniMap.focus(u);
   openPano(u);
 }
 
@@ -186,7 +188,11 @@ async function openPano(u) {
       return;
     }
     ui.panoDate.textContent = found.imageDate ? `影像 ${found.imageDate}` : '影像日期未提供';
-    await streetview.open(ui.pano, { lat: found.lat, lng: found.lng });
+    miniMap.showPano(found.lat, found.lng, 0);
+    await streetview.open(ui.pano, {
+      lat: found.lat, lng: found.lng,
+      onMove: ({ lat: y, lng: x, heading: h }) => miniMap.showPano(y, x, h),
+    });
   } catch (err) {
     ui.pano.style.display = 'none';
     ui.panoMsg.hidden = false;
@@ -195,6 +201,24 @@ async function openPano(u) {
 }
 
 function bind() {
+  // 小地圖可收合。收合狀態記在 localStorage——那是每台瀏覽器的偏好。
+  const MINI_KEY = 'audit-mini-hidden';
+  const miniBtn = el('mini-toggle');
+  const mini = el('mini-map');
+  let miniHidden = false;
+  try { miniHidden = localStorage.getItem(MINI_KEY) === '1'; } catch { /* 無痕視窗 */ }
+  const applyMini = () => {
+    mini.hidden = miniHidden;
+    miniBtn.setAttribute('aria-pressed', String(!miniHidden));
+    if (!miniHidden) miniMap.invalidate();
+  };
+  applyMini();
+  miniBtn.addEventListener('click', () => {
+    miniHidden = !miniHidden;
+    try { localStorage.setItem(MINI_KEY, miniHidden ? '1' : '0'); } catch { /* 同上 */ }
+    applyMini();
+  });
+
   el('btn-prev').addEventListener('click', () => show(idx - 1));
   el('btn-next').addEventListener('click', () => show(idx + 1));
   ui.picker.addEventListener('change', () => show(Number(ui.picker.value)));
@@ -268,6 +292,7 @@ async function start() {
     if (!units.length) throw new Error('沒有可評估的單位');
 
     store.init(instrument.version);
+    miniMap.init('mini-map', units);
     bind();
 
     const last = store.lastUnit();
