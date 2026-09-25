@@ -47,7 +47,7 @@ export async function render(map, county, { visible = true, onSelect } = {}) {
     onEachFeature: onSelect
       ? (f, l) => l.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
-          onSelect('road', f, l);
+          onSelect('road', f, l, e);
         })
       : undefined,
   }).addTo(map);

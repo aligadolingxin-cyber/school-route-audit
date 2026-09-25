@@ -59,7 +59,7 @@ export async function render(map, county, { onProgress, visible = true, onSelect
     onEachFeature: onSelect
       ? (f, l) => l.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
-          onSelect('sidewalk', f, l);
+          onSelect('sidewalk', f, l, e);
         })
       : undefined,
   }).addTo(map);

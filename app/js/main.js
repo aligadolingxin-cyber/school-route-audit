@@ -204,7 +204,14 @@ function clearSelection() {
   closePano();
 }
 
-async function select(kind, feature, layer) {
+async function select(kind, feature, layer, ev) {
+  // 街景模式下，點圖徵等同點該位置——使用者要的是看現場，不是看欄位
+  if (panoMode) {
+    const ll = ev?.latlng;
+    const label = feature.properties.NAME ?? feature.properties.name ?? '所選位置';
+    if (ll) return openPanoAt(ll.lat, ll.lng, label);
+    return openPano(feature, label);
+  }
   clearSelection();
   selected = { kind, feature, layer };
   layer.setStyle(SELECTED_STYLE);
@@ -229,6 +236,29 @@ async function select(kind, feature, layer) {
 }
 
 // ---- 街景 ----------------------------------------------------------------
+
+// 街景模式：開啟後點地圖任何位置都能看街景，不必先選路段。
+// 沒有人行道資料的地方在圖上可能什麼都沒有，若只能從圖徵開啟，
+// 那些位置就永遠看不到——而那正是最需要親眼確認的地方。
+let panoMode = false;
+
+function initPanoMode() {
+  const btn = document.getElementById('pano-mode');
+  const apply = () => {
+    btn.setAttribute('aria-pressed', String(panoMode));
+    document.getElementById('map').classList.toggle('pano-picking', panoMode);
+    setStatus(panoMode ? '街景模式：點地圖任一位置' : '');
+  };
+  btn.addEventListener('click', () => {
+    panoMode = !panoMode;
+    apply();
+  });
+  map.on('click', (e) => {
+    if (!panoMode) return;
+    openPanoAt(e.latlng.lat, e.latlng.lng, '所選位置');
+  });
+  apply();
+}
 
 // 地圖上標示全景所在位置與朝向。Leaflet 不是 google.maps.Map，
 // 拿不到 setStreetView 的自動連動，故自行維護這個圖示。
@@ -263,6 +293,10 @@ function panoMessage(text) {
 
 async function openPano(feature, label) {
   const [lng, lat] = centroidOf(feature.geometry);
+  return openPanoAt(lat, lng, label);
+}
+
+async function openPanoAt(lat, lng, label) {
   el.panoTitle.textContent = label;
   el.panoDate.textContent = '';
 
@@ -388,6 +422,7 @@ async function start() {
     }
     buildControls();
     initFiltersToggle();
+    initPanoMode();
     document.getElementById('pano-close')?.addEventListener('click', closePano);
     await refresh({ fit: true });
   } catch (err) {

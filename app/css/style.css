@@ -104,6 +104,16 @@ body {
 
 .toggle[aria-expanded="false"] .caret { transform: rotate(-90deg); }
 
+.toggle[aria-pressed="true"] {
+  background: #1f2d3d;
+  border-color: #1f2d3d;
+  color: #fff;
+}
+
+/* 街景模式下的游標，讓「現在點下去會開街景」看得出來 */
+#map.pano-picking,
+#map.pano-picking .leaflet-interactive { cursor: crosshair; }
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;
