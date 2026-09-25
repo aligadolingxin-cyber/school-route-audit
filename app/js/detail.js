@@ -2,6 +2,7 @@
 
 import { widthBand, CRASH_COLOR } from './config.js';
 import { distanceTo, boundsOf, metersToDegrees } from './geo.js';
+import * as risk from './risk.js';
 
 // 陳述事故時必須標明距離，且措辭為「周邊」——事故座標未必精確落在
 // 該路段上，不得宣稱事故發生於此（design Risks）。
@@ -136,6 +137,35 @@ function crashRows(crashes) {
   }).join('')}</ul>`;
 }
 
+/**
+ * 風險分數區塊。
+ *
+ * 未評估者顯示「未提供」並說明原因，**不以開放資料推估一個分數充數**
+ * （segment-detail spec）。那正是本專案要區隔的事：開放資料說不出
+ * 騎樓佔用與行穿線品質，硬湊一個數字會讓人以為它說得出。
+ */
+function riskHtml(p) {
+  const r = risk.forSegment(p.id ?? p.osm_id);
+  if (!r) {
+    return `<p class="muted">未提供——此路段尚未經逐段評估。開放資料只能呈現有無人行道與其寬度，
+      騎樓佔用、行穿線品質、路口視距等項目沒有任何資料集收錄，須由人逐段判讀。</p>`;
+  }
+  const m = risk.meta();
+  const band = risk.bandFor(r.pct);
+  const notes = [];
+  if (r.cannot_determine) notes.push(`無法判定 ${r.cannot_determine} 項已自分母扣除`);
+  if (r.unanswered) notes.push(`尚有 ${r.unanswered} 項未作答`);
+  return `
+    <p class="risk-score"${band ? ` style="--c:${band.color}"` : ''}>
+      <b>${r.score} / ${r.possible}</b>
+      <span>${r.pct}%</span>
+    </p>
+    ${notes.length ? `<p class="muted">${notes.join('・')}</p>` : ''}
+    <p class="muted">判準：${m?.instrument?.name ?? '未提供'}
+      ${m?.instrument?.version ? `（${m.instrument.version}）` : ''}・單一評估者判讀，
+      在地項目未經信度檢驗。</p>`;
+}
+
 export function panelHtml(kind, p, crashes, { inCompare = false } = {}) {
   const title = p.NAME ?? p.name ?? '（無路名）';
   const sub = kind === 'sidewalk'
@@ -186,8 +216,7 @@ export function panelHtml(kind, p, crashes, { inCompare = false } = {}) {
 
     <section>
       <h3>風險分數</h3>
-      <p class="muted">未提供——此路段尚未經逐段評估。開放資料只能呈現有無人行道與其寬度，
-        騎樓佔用、行穿線品質、路口視距等項目沒有任何資料集收錄，須由人逐段判讀。</p>
+      ${riskHtml(p)}
     </section>
 
     <section>

@@ -2,6 +2,7 @@
 
 import { widthBand } from './config.js';
 import { summarise, nearbyCrashes, CRASH_RADIUS_M } from './detail.js';
+import * as risk from './risk.js';
 
 export const MAX = 3;
 
@@ -85,9 +86,16 @@ const METRICS = [
     get: (it) => it.crashes.length, better: 'low' },
   { id: 'ped', label: '其中行人死亡', unit: '件',
     get: (it) => it.crashes.filter((c) => c.kind === 'pedestrian').length, better: 'low' },
-  { id: 'risk', label: '風險分數', unit: '',
-    get: () => null, better: null },   // 尚未逐段評估，一律未提供
+  { id: 'risk', label: '風險分數', unit: '%',
+    get: (it) => riskPct(it), better: 'high' },
 ];
+
+/** 未評估者回傳 null，由呈現層顯示為「未提供」而非 0。 */
+function riskPct(it) {
+  const p = it.feature.properties;
+  const r = risk.forSegment(p.id ?? p.osm_id);
+  return typeof r?.pct === 'number' ? r.pct : null;
+}
 
 /** 改善優先項目。取自與詳細面板同一組規則，故兩處說法一致。 */
 function priorities(it) {

@@ -5,6 +5,7 @@ import { loadCounties } from './counties.js';
 import { panelHtml, nearbyCrashes } from './detail.js';
 import * as streetview from './streetview.js';
 import * as compare from './compare.js';
+import * as risk from './risk.js';
 import * as sidewalk from './sidewalk.js';
 import * as roads from './roads.js';
 import * as schools from './schools.js';
@@ -452,6 +453,8 @@ async function start() {
   initMap();
   try {
     setStatus('載入縣市清單…');
+    // 評估結果可有可無。沒有就是沒有評估過，路段顯示「未提供」。
+    await risk.load();
     state.counties = await loadCounties();
     if (!state.counties.some((c) => c.name === state.county)) {
       state.county = state.counties[0]?.name ?? '';
