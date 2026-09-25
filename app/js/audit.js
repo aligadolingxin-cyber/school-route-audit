@@ -274,7 +274,11 @@ async function start() {
     const at = last ? units.findIndex((u) => u.id === last) : 0;
     await show(at >= 0 ? at : 0);
 
-    timerTick = setInterval(() => renderScore(current()), 5000);
+    // 一併定期落盤，不倚賴 beforeunload——它未必來得及寫入
+    timerTick = setInterval(() => {
+      store.flushTimer();
+      renderScore(current());
+    }, 5000);
   } catch (err) {
     setStatus(err.message, 'error');
     console.error(err);

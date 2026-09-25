@@ -135,12 +135,25 @@ export function startTimer(unitId) {
   write();
 }
 
-export function stopTimer() {
+/**
+ * 將目前累積的秒數落盤並重設計時起點。
+ *
+ * 只在 stopTimer 落盤是不夠的：頁面被關閉時 beforeunload 未必來得及
+ * 寫入，正在進行中那一段的時間就整個消失。實測曾因此掉了 31 秒。
+ * 故由呼叫端定期呼叫此函式。
+ */
+export function flushTimer() {
   if (!timing) return;
+  const now = Date.now();
   const r = recordFor(timing.unitId);
-  r.seconds += Math.round((Date.now() - timing.at) / 1000);
-  timing = null;
+  r.seconds += Math.round((now - timing.at) / 1000);
+  timing.at = now;
   write();
+}
+
+export function stopTimer() {
+  flushTimer();
+  timing = null;
 }
 
 /** 含目前這一段尚未結算的時間。 */
