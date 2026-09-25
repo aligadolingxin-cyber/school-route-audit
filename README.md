@@ -21,6 +21,28 @@ https://aligadolingxin-cyber.github.io/school-route-audit/
 
 推送至 `main` 且異動 `app/` 時自動部署（`.github/workflows/pages.yml`）。部署時會將 `index.html` 的 `__BUILD__` 置換為 commit SHA，使每次部署的 CSS/JS 網址不同——否則瀏覽器會沿用快取的舊版模組，連硬重載都無效。
 
+## Google 街景金鑰
+
+街景需要 Google Maps JavaScript API 金鑰。未設定時街景停用並於面板說明，其餘功能不受影響。
+
+**一、存為 GitHub Actions secret**
+
+Repo → Settings → Secrets and variables → Actions → New repository secret
+
+```
+Name:   GOOGLE_MAPS_API_KEY
+```
+
+部署時注入 `index.html`，不進版本庫。
+
+**二、於 Google Cloud Console 設限制**
+
+- 應用程式限制 → HTTP referrer：`https://aligadolingxin-cyber.github.io/school-route-audit/*`
+- API 限制 → 僅 Maps JavaScript API
+- 設定每日請求上限與預算警示
+
+此金鑰在前端必然可見（任何人檢視原始碼都拿得到），**安全性完全依靠上述 referrer 限制**。未設限制者，他人複製即可耗用你的額度。
+
 ## 本機預覽
 
 需以 HTTP 提供服務，不能直接開 `file://`（ES module 與 fetch 皆受同源限制）。
