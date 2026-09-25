@@ -1,0 +1,22 @@
+{
+  "name": "大安國中／建安國小周邊示範",
+  "note": "SafePathways 台北案例區的兩所學校，相距 80 公尺。單位取自兩校中點半徑 260 公尺內，涵蓋淨寬三級與查無人行道紀錄者。挑選依據見 docs/demo-units.md。",
+  "sources": { "sidewalk": "台北市", "roads": "臺北市" },
+  "units": [
+    { "id": "c547ce0b5b75", "kind": "sidewalk", "why": "總寬 5.06 m 但淨寬僅 1.42 m——三分之二不可通行。開放資料說不出為什麼" },
+    { "id": "58731cf0a152", "kind": "sidewalk", "why": "淨寬 1.06 m，本身就窄" },
+    { "id": "a4215bb43a80", "kind": "sidewalk", "why": "四維路，路緣斜坡 6 處但淨寬未達下限" },
+    { "id": "ec8301d8f54b", "kind": "sidewalk", "why": "敦化南路二段，主要幹道而人行道僅 1.20 m" },
+
+    { "id": "98c6e7782183", "kind": "sidewalk", "why": "淨寬 1.54 m，剛好壓在法規下限之上" },
+    { "id": "f9a24a3e8426", "kind": "sidewalk", "why": "四維路一六0巷，巷弄而有人行道" },
+    { "id": "e476bd92d96f", "kind": "sidewalk", "why": "總寬等於淨寬，無固定設施佔用" },
+
+    { "id": "698d9e4fcc2c", "kind": "sidewalk", "why": "敦化南路二段，淨寬 6.36 m" },
+    { "id": "8b999a56dd77", "kind": "sidewalk", "why": "大安路二段，淨寬 3.43 m" },
+
+    { "id": "48801111", "kind": "road", "why": "四維路124巷，查無人行道紀錄" },
+    { "id": "303824401", "kind": "road", "why": "復興南路二段111巷17弄，查無人行道紀錄" },
+    { "id": "303824399", "kind": "road", "why": "無名住宅區道路，查無人行道紀錄" }
+  ]
+}
