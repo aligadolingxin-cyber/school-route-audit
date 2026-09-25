@@ -122,16 +122,35 @@ export function score(unitId, items) {
 
 // ---- 計時 ----------------------------------------------------------------
 //
-// 切換瀏覽器分頁不暫停（audit-workbench spec）——切走多半是去查資料，
-// 那是評估作業的一部分。離開該單位才停。
+// 耗時是本工具推估擴充成本的唯一依據，把發呆與離開的時間算進去，
+// 「評完全台要多久」就變成一個沒有意義的數字。
+//
+// 故超過一分鐘沒有任何操作即停止計時。一分鐘的寬限是留給「盯著
+// 街景看但沒動滑鼠」——那是真的在工作。恢復操作時不補算中間的空白。
+
+const IDLE_MS = 60_000;
 
 let timing = null;
+let lastActivity = Date.now();
+
+/**
+ * 記錄一次使用者操作。滑鼠、鍵盤、捲動與街景視角變動皆算。
+ * 自閒置恢復時重設計時起點，使中間的空白不被計入。
+ */
+export function noteActivity() {
+  const now = Date.now();
+  if (timing && now - lastActivity > IDLE_MS) timing.at = now;
+  lastActivity = now;
+}
+
+export const isIdle = () => Date.now() - lastActivity > IDLE_MS;
 
 export function startTimer(unitId) {
   stopTimer();
   const r = recordFor(unitId);
   r.opens += 1;
-  timing = { unitId, at: Date.now() };
+  lastActivity = Date.now();
+  timing = { unitId, at: lastActivity };
   write();
 }
 
@@ -145,10 +164,14 @@ export function startTimer(unitId) {
 export function flushTimer() {
   if (!timing) return;
   const now = Date.now();
-  const r = recordFor(timing.unitId);
-  r.seconds += Math.round((now - timing.at) / 1000);
-  timing.at = now;
-  write();
+  // 只計到「最後一次操作再加一分鐘」為止。超過的部分是閒置，不計。
+  const cutoff = Math.min(now, lastActivity + IDLE_MS);
+  const add = Math.round((cutoff - timing.at) / 1000);
+  if (add > 0) {
+    recordFor(timing.unitId).seconds += add;
+    timing.at = cutoff;
+    write();
+  }
 }
 
 export function stopTimer() {
@@ -156,11 +179,12 @@ export function stopTimer() {
   timing = null;
 }
 
-/** 含目前這一段尚未結算的時間。 */
+/** 含目前這一段尚未結算的時間，同樣扣除閒置。 */
 export function secondsFor(unitId) {
   const r = recordFor(unitId);
-  const live = timing?.unitId === unitId ? Math.round((Date.now() - timing.at) / 1000) : 0;
-  return r.seconds + live;
+  if (timing?.unitId !== unitId) return r.seconds;
+  const cutoff = Math.min(Date.now(), lastActivity + IDLE_MS);
+  return r.seconds + Math.max(0, Math.round((cutoff - timing.at) / 1000));
 }
 
 export function timingStats(unitIds) {

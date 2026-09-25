@@ -214,6 +214,15 @@ body.audit { height: 100dvh; overflow: hidden; }
 
 #btn-done { background: #1f2d3d; border-color: #1f2d3d; color: #fff; }
 
+.idle {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #f1f1f1;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
 .timer {
   margin-left: auto;
   display: flex;

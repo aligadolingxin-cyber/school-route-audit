@@ -124,10 +124,12 @@ function renderScore(u) {
   const extra = [];
   if (s.cannot) extra.push(`無法判定 ${s.cannot} 項已自分母扣除`);
   if (s.unanswered) extra.push(`尚未作答 ${s.unanswered} 項`);
+  const idle = store.isIdle();
   ui.timer.innerHTML = `
     <b>${scoreText}</b>
     ${extra.length ? `<span class="muted">${extra.join('・')}</span>` : ''}
-    <span class="muted">耗時 ${fmtSec(store.secondsFor(u.id))}</span>`;
+    <span class="muted">耗時 ${fmtSec(store.secondsFor(u.id))}</span>
+    ${idle ? '<span class="idle">閒置中，已暫停計時</span>' : ''}`;
 }
 
 // ---- 互動 ----------------------------------------------------------------
@@ -191,7 +193,10 @@ async function openPano(u) {
     miniMap.showPano(found.lat, found.lng, 0);
     await streetview.open(ui.pano, {
       lat: found.lat, lng: found.lng,
-      onMove: ({ lat: y, lng: x, heading: h }) => miniMap.showPano(y, x, h),
+      onMove: ({ lat: y, lng: x, heading: h }) => {
+        store.noteActivity();   // 轉動街景是操作，Google 的事件不會冒泡出來
+        miniMap.showPano(y, x, h);
+      },
     });
   } catch (err) {
     ui.pano.style.display = 'none';
@@ -201,6 +206,12 @@ async function openPano(u) {
 }
 
 function bind() {
+  // 閒置偵測。街景的互動發生在 Google 自己的畫布裡，事件未必冒泡到
+  // document，故視角變動另行通知（見 openPano 的 onMove）。
+  for (const ev of ['pointerdown', 'pointermove', 'keydown', 'wheel', 'scroll']) {
+    window.addEventListener(ev, store.noteActivity, { passive: true, capture: true });
+  }
+
   // 小地圖可收合。收合狀態記在 localStorage——那是每台瀏覽器的偏好。
   const MINI_KEY = 'audit-mini-hidden';
   const miniBtn = el('mini-toggle');
