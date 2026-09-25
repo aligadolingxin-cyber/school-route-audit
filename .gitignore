@@ -1,0 +1,30 @@
+# 原始下載檔 — 體積大、可由 pipeline 重現，不納入版本庫（design D11）
+data/raw/
+
+# 金鑰與本機設定 — 絕不納入
+app/config.local.js
+.env
+.env.local
+*.key
+
+# 前處理暫存
+pipeline/.cache/
+pipeline/tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# 作業系統與編輯器
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+
+# 注意：app/data/ 底下處理後的分縣市檔案「要」納入版本庫。
+# GitHub Pages 直接自版本庫提供服務，那些檔案即是部署產物（design D11）。
