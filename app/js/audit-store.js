@@ -187,6 +187,21 @@ export function secondsFor(unitId) {
   return r.seconds + Math.max(0, Math.round((cutoff - timing.at) / 1000));
 }
 
+/**
+ * 清除某單位的計時，作答不動。
+ *
+ * 被打斷、中途離開、或想重評一次時需要。舊資料若含閒置時間，
+ * 留著會污染速率統計——而那是推估擴充成本的唯一依據。
+ */
+export function resetTimer(unitId) {
+  const r = recordFor(unitId);
+  r.seconds = 0;
+  r.opens = 0;
+  if (timing?.unitId === unitId) timing.at = Date.now();
+  lastActivity = Date.now();
+  write();
+}
+
 export function timingStats(unitIds) {
   const xs = unitIds
     .map((id) => state.records[id])

@@ -244,6 +244,16 @@ function bind() {
     renderPicker();
   });
 
+  el('btn-resettime').addEventListener('click', () => {
+    const u = current();
+    const had = store.secondsFor(u.id);
+    if (had > 0 && !confirm(`清除「${data.titleOf(u)}」的計時（目前 ${fmtSec(had)}）？作答不會變動。`)) return;
+    store.resetTimer(u.id);
+    renderScore(u);
+    renderProgress();
+    setStatus('已重設此段計時。作答未變動。');
+  });
+
   el('btn-noimage').addEventListener('click', () => {
     store.stopTimer();
     store.setStatus(current().id, store.STATUS.NO_IMAGE);
