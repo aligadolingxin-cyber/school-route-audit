@@ -470,7 +470,8 @@ body {
   filter: saturate(0.25) brightness(1.06) contrast(0.92);
 }
 
-/* 圖例：固定於地圖下側，不隨地圖移動（road-segments spec） */
+/* 圖例：固定於地圖下側，不隨地圖移動（road-segments spec）。
+   窄視窗下不換行而改為橫向捲動——折成六行會把地圖擠沒。 */
 .legend {
   flex: 0 0 auto;
   display: flex;
@@ -481,6 +482,23 @@ body {
   border-top: 1px solid var(--line);
   background: var(--panel);
   font-size: 13px;
+  max-height: 24vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  .legend {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    gap: 0 14px;
+    padding: 7px 16px;
+    scrollbar-width: thin;
+  }
+
+  .legend-sep { min-width: 1px; }
+  .legend-group-label { position: sticky; left: 0; }
 }
 
 .legend-group-label {
@@ -548,15 +566,39 @@ body {
   margin: 0 2px;
 }
 
+/* 出處標示常駐（design D8、ODbL 與政府資料開放授權皆要求），
+   但在窄視窗會折成五六行吃掉版面，故預設摺疊為一行、可展開看全文。 */
 .attribution {
   flex: 0 0 auto;
-  padding: 7px 16px;
+  padding: 6px 16px;
   border-top: 1px solid var(--line);
   font-size: 11px;
   line-height: 1.6;
   color: var(--muted);
+  max-height: 22vh;
+  overflow-y: auto;
 }
 
+.attribution > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.attribution > summary::-webkit-details-marker { display: none; }
+
+.attribution > summary::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border: 3.5px solid transparent;
+  border-left-color: currentColor;
+  transition: transform .15s;
+}
+
+.attribution[open] > summary::before { transform: rotate(90deg); }
 .attribution span { margin-right: 4px; }
 .attribution a { color: inherit; }
 
