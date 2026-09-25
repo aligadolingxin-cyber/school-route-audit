@@ -34,5 +34,21 @@ export const SCHOOL_COLOR = Object.fromEntries(SCHOOL_LEVELS.map((s) => [s.id, s
 // 步行生活圈半徑（公尺）。直線距離，非路網距離。
 export const WALKSHED_M = 300;
 
+// A1 事故點的受害者運具配色。
+//
+// 刻意不用紅色標行人——紅色已是「淨寬 < 1.5 m」，而本圖層最關鍵的
+// 判讀正是「行人死亡點是否落在紅色路段上」。若兩者同色，那個點會
+// 消失在它要控訴的路段裡。改以深色加白色外圈，確保疊在紅黃綠灰
+// 任一種底色上都看得見。
+export const CRASH_KINDS = [
+  { id: 'pedestrian', color: '#111111', label: '行人' },
+  { id: 'motorcycle', color: '#8C4A2F', label: '機車' },
+  { id: 'cyclist',    color: '#B8860B', label: '慢車' },
+  { id: 'vehicle',    color: '#35618F', label: '汽車、貨車' },
+];
+
+export const CRASH_COLOR = Object.fromEntries(CRASH_KINDS.map((k) => [k.id, k.color]));
+
 export const SIDEWALK_BASE = 'data/sidewalk';
 export const SCHOOL_BASE = 'data/schools';
+export const CRASH_BASE = 'data/crashes';

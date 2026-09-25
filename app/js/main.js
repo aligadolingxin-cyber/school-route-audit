@@ -2,6 +2,7 @@
 
 import { loadCounty as loadSidewalk } from './sidewalk.js';
 import { loadCounty as loadSchools } from './schools.js';
+import { loadCounty as loadCrashes } from './crashes.js';
 
 const TAIPEI = { center: [25.0375, 121.5637], zoom: 13 };
 
@@ -42,11 +43,13 @@ async function start() {
     // 兩份政府資料的用字本就不一致，此處不強行統一以免對不到檔案。
     const sw = await loadSidewalk(map, '台北市', { onProgress: setStatus });
     const sc = await loadSchools(map, '臺北市', { onProgress: setStatus });
+    const cr = await loadCrashes(map, '臺北市', { onProgress: setStatus });
     setStatus(
       `台北市 · 人行道 ${sw.count.toLocaleString()} 段（${sw.dataYm}）· ` +
-      `學校 ${sc.count} 處 · ${sw.totalMs + sc.ms} ms`
+      `學校 ${sc.count} 處 · A1 事故 ${cr.count} 場／死亡 ${cr.deaths} 人` +
+      `（其中行人 ${cr.pedestrian} 場，${cr.years.join('、')}）`
     );
-    console.info('[圖層]', { sidewalk: sw, schools: sc });
+    console.info('[圖層]', { sidewalk: sw, schools: sc, crashes: cr });
   } catch (err) {
     setStatus(err.message, 'error');
     console.error(err);
