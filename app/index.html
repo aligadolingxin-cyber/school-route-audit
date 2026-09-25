@@ -27,6 +27,9 @@
   <button class="toggle pano-mode" id="pano-mode" aria-pressed="false">
     <span aria-hidden="true">👁</span><span data-i18n="pano.mode">街景模式</span>
   </button>
+  <button class="toggle" id="compare-toggle" aria-expanded="false" aria-controls="compare">
+    <span data-i18n="cmp.toggle">比較</span><span class="cmp-count" id="compare-count">0</span>
+  </button>
 </header>
 
 <div class="filters" id="filters">
@@ -56,6 +59,7 @@
   <div class="map-wrap">
     <div id="map" role="application" aria-label="地圖"></div>
     <aside class="detail" id="detail" hidden aria-label="路段詳細"></aside>
+    <section class="compare" id="compare" hidden aria-label="路段比較"></section>
     <section class="pano-wrap" id="pano-wrap" hidden aria-label="街景">
       <header class="pano-head">
         <span id="pano-title"></span>

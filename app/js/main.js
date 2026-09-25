@@ -4,6 +4,7 @@ import { SCHOOL_LEVELS, WALKSHED_PROFILES, DEFAULT_PROFILE, WIDTH_BANDS } from '
 import { loadCounties } from './counties.js';
 import { panelHtml, nearbyCrashes } from './detail.js';
 import * as streetview from './streetview.js';
+import * as compare from './compare.js';
 import * as sidewalk from './sidewalk.js';
 import * as roads from './roads.js';
 import * as schools from './schools.js';
@@ -27,6 +28,9 @@ const el = {
   panoMsg: document.getElementById('pano-msg'),
   filters: document.getElementById('filters'),
   filtersToggle: document.getElementById('filters-toggle'),
+  compare: document.getElementById('compare'),
+  compareToggle: document.getElementById('compare-toggle'),
+  compareCount: document.getElementById('compare-count'),
 };
 
 // 選取狀態。選取樣式直接套在被點的圖層上，解除時以 resetStyle 還原。
@@ -76,6 +80,8 @@ function buildControls() {
   el.county.value = state.county;
   el.county.addEventListener('change', () => {
     state.county = el.county.value;
+    // 換縣市後圖層重建，比較清單持有的是舊圖層，留著只會指向不存在的東西
+    compare.clear();
     refresh({ fit: true });
   });
 
@@ -221,7 +227,8 @@ async function select(kind, feature, layer, ev) {
   const crashFC = rec?.files.crashes ? await crashes.fetchCounty(rec.files.crashes) : null;
   const near = nearbyCrashes(feature.geometry, crashFC);
 
-  el.detail.innerHTML = panelHtml(kind, feature.properties, near);
+  el.detail.innerHTML = panelHtml(kind, feature.properties, near,
+    { inCompare: compare.has(kind, feature.properties) });
   el.detail.hidden = false;
   el.detail.scrollTop = 0;
   document.getElementById('detail-close')?.addEventListener('click', clearSelection);
@@ -229,10 +236,39 @@ async function select(kind, feature, layer, ev) {
     openPano(feature, feature.properties.NAME ?? feature.properties.name ?? '（無路名）');
   });
   document.getElementById('detail-compare')?.addEventListener('click', (e) => {
-    // 比較面板為 task 12；此處先確認入口存在且可回饋
-    e.target.disabled = true;
-    e.target.textContent = '比較面板尚未實作';
+    const r = compare.add(kind, feature, layer, near);
+    if (r.ok) {
+      e.target.disabled = true;
+      e.target.textContent = '已加入比較';
+      toggleCompare(true);
+    } else if (r.reason === 'full') {
+      // spec：已達上限時告知並提供移除方式，不得靜默捨棄
+      e.target.textContent = `已達 ${compare.MAX} 條上限，請先移除`;
+      toggleCompare(true);
+    }
   });
+}
+
+// ---- 比較 ----------------------------------------------------------------
+
+function renderCompare() {
+  el.compareCount.textContent = String(compare.size());
+  el.compareToggle.classList.toggle('has-items', compare.size() > 0);
+  if (el.compare.hidden) return;
+  el.compare.innerHTML = compare.panelHtml();
+  compare.bind(el.compare, { onClose: () => toggleCompare(false) });
+}
+
+function toggleCompare(open) {
+  el.compare.hidden = !open;
+  el.compareToggle.setAttribute('aria-expanded', String(open));
+  if (open) renderCompare();
+}
+
+function initCompare() {
+  compare.init({ map, onChanged: renderCompare });
+  el.compareToggle.addEventListener('click', () => toggleCompare(el.compare.hidden));
+  renderCompare();
 }
 
 // ---- 街景 ----------------------------------------------------------------
@@ -423,6 +459,7 @@ async function start() {
     buildControls();
     initFiltersToggle();
     initPanoMode();
+    initCompare();
     document.getElementById('pano-close')?.addEventListener('click', closePano);
     await refresh({ fit: true });
   } catch (err) {
