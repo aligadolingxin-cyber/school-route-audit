@@ -1,0 +1,176 @@
+{
+  "version": "2026-09-26.1",
+  "name": "MAPS-Mini 台北在地版",
+  "note": "MAPS-Mini 為 Sallis 實驗室發布，問卷與圖解手冊見 docs/instruments/。在地項目為本案自訂，未經信度檢驗。",
+  "adaptations": [
+    "MAPS-Mini 的路口題原需「路口」單位，本工具的單位為路段，故將路口題限定於該路段終點的路口。此為對原工具的調整。",
+    "第 6、7 題（建物維護、塗鴉）在街景上的信度偏低（Yu et al. 2025 於台北實測美觀類項目 kappa 偏低），標記為 low_reliability。",
+    "第 9 題與路緣斜坡在開放資料中已有對應欄位，介面並陳作為對照，但不預填，以免錨定判讀。"
+  ],
+  "sections": [
+    { "id": "crossing", "label": "路段終點的路口", "note": "原 MAPS-Mini 的 Crossing 區段，此處限定於該路段終點的路口" },
+    { "id": "segment", "label": "路段", "note": "以道路的一側為單位" },
+    { "id": "local", "label": "台北在地", "note": "本案自訂，未經信度檢驗" }
+  ],
+  "items": [
+    {
+      "id": "mm_x1", "section": "crossing", "source": "maps-mini", "max": 1,
+      "text": "路口有行人號誌嗎？",
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "有" }]
+    },
+    {
+      "id": "mm_x2", "section": "crossing", "source": "maps-mini", "max": 2,
+      "text": "路緣有斜坡嗎？",
+      "reference": "開放資料的 SW_RAMP 欄位可對照",
+      "options": [
+        { "v": 0, "label": "沒有" },
+        { "v": 1, "label": "只有一側有" },
+        { "v": 2, "label": "進入與離開兩側都有" }
+      ]
+    },
+    {
+      "id": "mm_x3", "section": "crossing", "source": "maps-mini", "max": 1,
+      "text": "有標示的行人穿越道嗎？",
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "有" }]
+    },
+
+    {
+      "id": "mm_s1", "section": "segment", "source": "maps-mini", "max": 1,
+      "text": "土地使用型態",
+      "options": [{ "v": 0, "label": "住宅" }, { "v": 1, "label": "商業" }]
+    },
+    {
+      "id": "mm_s2", "section": "segment", "source": "maps-mini", "max": 2,
+      "text": "沿線有幾處公園？",
+      "options": [{ "v": 0, "label": "0" }, { "v": 1, "label": "1" }, { "v": 2, "label": "2 以上" }]
+    },
+    {
+      "id": "mm_s3", "section": "segment", "source": "maps-mini", "max": 2,
+      "text": "沿線有幾處大眾運輸站點？",
+      "options": [{ "v": 0, "label": "0" }, { "v": 1, "label": "1" }, { "v": 2, "label": "2 以上" }]
+    },
+    {
+      "id": "mm_s4", "section": "segment", "source": "maps-mini", "max": 1,
+      "text": "有長椅或可坐之處嗎？（含站牌座椅）",
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "有" }]
+    },
+    {
+      "id": "mm_s5", "section": "segment", "source": "maps-mini", "max": 2,
+      "text": "有路燈嗎？",
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "部分路段有" }, { "v": 2, "label": "充足" }]
+    },
+    {
+      "id": "mm_s6", "section": "segment", "source": "maps-mini", "max": 1,
+      "low_reliability": true,
+      "text": "沿線建物維護狀況良好嗎？",
+      "options": [{ "v": 0, "label": "未達全部良好" }, { "v": 1, "label": "全部良好" }]
+    },
+    {
+      "id": "mm_s7", "section": "segment", "source": "maps-mini", "max": 1,
+      "low_reliability": true,
+      "text": "有塗鴉嗎？（彩繪牆不算）",
+      "options": [{ "v": 1, "label": "沒有" }, { "v": 0, "label": "有" }]
+    },
+    {
+      "id": "mm_s8", "section": "segment", "source": "maps-mini", "max": 2,
+      "text": "有自行車道嗎？",
+      "options": [
+        { "v": 0, "label": "沒有" },
+        { "v": 1, "label": "僅劃線" },
+        { "v": 2, "label": "有實體分隔" }
+      ]
+    },
+    {
+      "id": "mm_s9", "section": "segment", "source": "maps-mini", "max": 1,
+      "text": "有人行道嗎？",
+      "reference": "開放資料是否收錄此路段可對照",
+      "skip_rest_if": 0,
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "有" }]
+    },
+    {
+      "id": "mm_s10", "section": "segment", "source": "maps-mini", "max": 1,
+      "text": "人行道有明顯絆倒風險的破損嗎？（隆起、錯位、裂縫、植被侵入、中斷）",
+      "options": [{ "v": 1, "label": "沒有" }, { "v": 0, "label": "有，或無人行道" }]
+    },
+    {
+      "id": "mm_s11", "section": "segment", "source": "maps-mini", "max": 1,
+      "text": "人行道與車道之間有緩衝帶嗎？",
+      "options": [{ "v": 0, "label": "沒有，或無人行道" }, { "v": 1, "label": "有" }]
+    },
+    {
+      "id": "mm_s12", "section": "segment", "source": "maps-mini", "max": 2,
+      "text": "人行道有多少比例被樹蔭、雨遮或其他遮蔽覆蓋？",
+      "options": [
+        { "v": 0, "label": "0–25%，或無人行道" },
+        { "v": 1, "label": "26–75%" },
+        { "v": 2, "label": "76–100%" }
+      ]
+    },
+
+    {
+      "id": "tw_1", "section": "local", "source": "local", "draft": true, "max": 2,
+      "text": "沿線有騎樓嗎？",
+      "help": "騎樓是台北最主要的步行空間，沒有任何西方工具收錄，也不在任何開放資料集中。",
+      "options": [
+        { "v": 0, "label": "沒有" },
+        { "v": 1, "label": "部分路段有" },
+        { "v": 2, "label": "全線有" }
+      ]
+    },
+    {
+      "id": "tw_2", "section": "local", "source": "local", "draft": true, "max": 2,
+      "text": "騎樓是否連續可通行？",
+      "help": "高低差與階梯是台灣騎樓最典型的問題——推娃娃車、輪椅或小孩跑步時會被迫下到車道。",
+      "options": [
+        { "v": 0, "label": "多處中斷或高低差明顯，或無騎樓" },
+        { "v": 1, "label": "偶有高低差" },
+        { "v": 2, "label": "連續平順" }
+      ]
+    },
+    {
+      "id": "tw_3", "section": "local", "source": "local", "draft": true, "max": 2,
+      "text": "騎樓被佔用的程度？",
+      "help": "商品、桌椅、盆栽、堆置物。判斷「小孩能不能直直走過去」。",
+      "options": [
+        { "v": 0, "label": "幾乎無法通行，或無騎樓" },
+        { "v": 1, "label": "需繞行" },
+        { "v": 2, "label": "大致淨空" }
+      ]
+    },
+    {
+      "id": "tw_4", "section": "local", "source": "local", "draft": true, "max": 2,
+      "text": "有機車停放於人行道或騎樓內嗎？",
+      "options": [
+        { "v": 0, "label": "大量停放，阻礙通行" },
+        { "v": 1, "label": "零星停放" },
+        { "v": 2, "label": "沒有" }
+      ]
+    },
+    {
+      "id": "tw_5", "section": "local", "source": "local", "draft": true, "max": 1,
+      "text": "路邊停車是否侵佔步行空間？",
+      "options": [{ "v": 0, "label": "是" }, { "v": 1, "label": "否" }]
+    },
+    {
+      "id": "tw_6", "section": "local", "source": "local", "draft": true, "max": 2,
+      "text": "沒有人行道的路段，是否以標線或實體區分出步行空間？",
+      "help": "台北市學校周邊約三分之一的道路查無人行道紀錄，多為巷弄。那些路上小孩走哪裡，這題在問。",
+      "options": [
+        { "v": 0, "label": "完全沒有區分，或不適用（有人行道）" },
+        { "v": 1, "label": "有標線" },
+        { "v": 2, "label": "有實體分隔" }
+      ]
+    },
+    {
+      "id": "tw_7", "section": "local", "source": "local", "draft": true, "max": 1,
+      "text": "有車速抑制設施嗎？",
+      "help": "減速丘、路口窄縮、標線縮減車道寬度等。",
+      "options": [{ "v": 0, "label": "沒有" }, { "v": 1, "label": "有" }]
+    },
+    {
+      "id": "tw_8", "section": "local", "source": "local", "draft": true, "max": 1,
+      "text": "學童是否需與車輛共用同一空間且無任何區隔？",
+      "options": [{ "v": 0, "label": "是" }, { "v": 1, "label": "否" }]
+    }
+  ]
+}
