@@ -1,6 +1,6 @@
 // 人行道圖層：載入分縣市檔案並依淨寬著色。
 
-import { DATA_BASE, widthBand, NO_RECORD } from './config.js';
+import { SIDEWALK_BASE as DATA_BASE, widthBand, NO_RECORD } from './config.js';
 
 let layer = null;
 

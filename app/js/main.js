@@ -1,6 +1,7 @@
 // 學區道路健檢 — 進入點
 
-import { loadCounty } from './sidewalk.js';
+import { loadCounty as loadSidewalk } from './sidewalk.js';
+import { loadCounty as loadSchools } from './schools.js';
 
 const TAIPEI = { center: [25.0375, 121.5637], zoom: 13 };
 
@@ -37,12 +38,15 @@ async function start() {
   window.map = map;
 
   try {
-    const r = await loadCounty(map, '台北市', { onProgress: (m) => setStatus(m) });
+    // 人行道檔名沿用來源寫法「台北市」，學校檔名為「臺北市」。
+    // 兩份政府資料的用字本就不一致，此處不強行統一以免對不到檔案。
+    const sw = await loadSidewalk(map, '台北市', { onProgress: setStatus });
+    const sc = await loadSchools(map, '臺北市', { onProgress: setStatus });
     setStatus(
-      `${r.county} ${r.count.toLocaleString()} 段 · 資料 ${r.dataYm} · ` +
-      `載入 ${r.fetchMs} ms、繪製 ${r.drawMs} ms`
+      `台北市 · 人行道 ${sw.count.toLocaleString()} 段（${sw.dataYm}）· ` +
+      `學校 ${sc.count} 處 · ${sw.totalMs + sc.ms} ms`
     );
-    console.info('[人行道圖層]', r);
+    console.info('[圖層]', { sidewalk: sw, schools: sc });
   } catch (err) {
     setStatus(err.message, 'error');
     console.error(err);

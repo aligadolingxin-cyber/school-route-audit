@@ -119,6 +119,29 @@ body {
   border-top: 3px solid var(--c);
 }
 
+/* 學校為面，但形狀與人行道區隔以免混淆 */
+.legend-item i.sch {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--c) 25%, transparent);
+  border: 1.5px solid var(--c);
+}
+
+.legend-item i.shed {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--muted);
+}
+
+.legend-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--line);
+  margin: 0 2px;
+}
+
 .attribution {
   flex: 0 0 auto;
   padding: 7px 16px;

@@ -17,4 +17,22 @@ export function widthBand(v) {
   return WIDTH_BANDS.find((b) => v < b.max) ?? WIDTH_BANDS[WIDTH_BANDS.length - 1];
 }
 
-export const DATA_BASE = 'data/sidewalk';
+// 學校類型配色。刻意全用冷色系——紅／黃／綠已被淨寬分級佔用，
+// 學校若也用暖色，使用者會分不清「紅色＝這所學校危險」與
+// 「紅色＝這段路窄」（design D4）。
+export const SCHOOL_LEVELS = [
+  { id: '國小',   color: '#4E79A7' },
+  { id: '國中',   color: '#76B7B2' },
+  { id: '高中職', color: '#B07AA1' },
+  { id: '大專',   color: '#3B5BA5' },
+  { id: '特殊',   color: '#8C6BB1' },
+  { id: '其他',   color: '#9C9C9C' },
+];
+
+export const SCHOOL_COLOR = Object.fromEntries(SCHOOL_LEVELS.map((s) => [s.id, s.color]));
+
+// 步行生活圈半徑（公尺）。直線距離，非路網距離。
+export const WALKSHED_M = 300;
+
+export const SIDEWALK_BASE = 'data/sidewalk';
+export const SCHOOL_BASE = 'data/schools';
