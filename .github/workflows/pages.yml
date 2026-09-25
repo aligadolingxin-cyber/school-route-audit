@@ -29,6 +29,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 語法錯誤（重複宣告、拼錯的 import）在瀏覽器只會顯示為
+      # 整頁空白加一行主控台訊息，且要等部署完才看得到。在這裡擋下。
+      - name: 檢查 ES module 語法
+        run: |
+          fail=0
+          for f in app/js/*.js; do
+            if node --input-type=module --check < "$f"; then
+              echo "ok   $f"
+            else
+              echo "FAIL $f" >&2; fail=1
+            fi
+          done
+          exit $fail
+
       - uses: actions/configure-pages@v5
 
       # 以 commit SHA 取代 __BUILD__，使每次部署的 CSS/JS 網址都不同。

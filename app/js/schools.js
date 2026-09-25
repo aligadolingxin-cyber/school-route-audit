@@ -71,7 +71,3 @@ export function clear(map) {
 export function getLayers() {
   return { blockLayer, shedLayer };
 }
-
-export function getLayers() {
-  return { blockLayer, shedLayer };
-}
