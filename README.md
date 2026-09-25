@@ -15,6 +15,22 @@
 
 開放資料能回答的只有「有沒有人行道、多寬、有沒有出過事」。騎樓被佔用、行穿線品質、路口視距、機車停放這些同樣決定安全的因素，沒有任何資料集收錄，只能由人逐段判讀。那部分由本專案的評估工作台產出。
 
+## 線上版
+
+https://aligadolingxin-cyber.github.io/school-route-audit/
+
+推送至 `main` 且異動 `app/` 時自動部署（`.github/workflows/pages.yml`）。部署時會將 `index.html` 的 `__BUILD__` 置換為 commit SHA，使每次部署的 CSS/JS 網址不同——否則瀏覽器會沿用快取的舊版模組，連硬重載都無效。
+
+## 本機預覽
+
+需以 HTTP 提供服務，不能直接開 `file://`（ES module 與 fetch 皆受同源限制）。
+
+```bash
+cd app && python -m http.server 8000
+```
+
+然後開 http://localhost:8000。本機預覽時 `__BUILD__` 不會被置換，瀏覽器可能快取舊版；開發時請開啟開發者工具並停用快取。
+
 ## 結構
 
 ```

@@ -13,10 +13,11 @@
 ## 2. 專案骨架與部署
 
 - [x] 2.1 建立目錄結構與 `.gitignore` — 已完成，`git ls-files` 確認 `data/raw/` 未被追蹤；repo 已推送至 `aligadolingxin-cyber/school-route-audit`
-- [ ] 2.2 建立靜態網站骨架與本機預覽方式，於瀏覽器開啟得到可運作的空白地圖
-- [ ] 2.3 設定 GitHub Pages 部署（公開版本庫），取得 `*.github.io` 網址並自外部裝置確認可開啟
-- [ ] 2.4 將 Google Maps 金鑰的 HTTP referrer 限制設為該 Pages 網域並設定用量上限，以非授權網域載入驗證金鑰被拒
-- [ ] 2.5 於地圖區域常駐呈現 OpenStreetMap、國土管理署、警政署、國土測繪中心的出處標示，確認各資料集的授權要求皆已滿足
+- [x] 2.2 建立靜態網站骨架與本機預覽方式 — 已完成，線上實測地圖可運作、console 無錯誤；本機預覽方式記於 README
+- [x] 2.3 設定 GitHub Pages 部署 — 已上線 https://aligadolingxin-cyber.github.io/school-route-audit/ ，自外部瀏覽器確認可開啟
+- [ ] 2.4 將 Google Maps 金鑰的 HTTP referrer 限制設為該 Pages 網域並設定用量上限，以非授權網域載入驗證金鑰被拒（Task 11 街景時才需要）
+- [x] 2.5 於地圖區域常駐呈現出處標示 — 已完成並線上確認：國土管理署、警政署、國土測繪中心（含底圖）、OpenStreetMap
+- [x] 2.6 部署時以 commit SHA 為 CSS/JS 加上版本號 — 發現 ES module 快取使部署後的改動不生效（硬重載亦無效），由部署流程置換 `__BUILD__` 解決，並於殘留時讓部署失敗
 
 ## 3. 前處理：人行道多邊形
 
