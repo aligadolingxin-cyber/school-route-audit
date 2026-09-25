@@ -1,0 +1,130 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1c1c1c;
+  --muted: #5f5f5f;
+  --line: #d8d8d8;
+  --panel: #fafafa;
+
+  /* 淨寬分級 — 語意色，不得挪作他用（design D4） */
+  --w-red: #D1495B;
+  --w-amber: #E8A33D;
+  --w-green: #4C9A63;
+  --w-none: #8A8A8A;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: .02em;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+.status[data-state="error"] { color: var(--w-red); }
+
+.layout {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#map {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--panel);
+}
+
+/* 圖例：固定於地圖下側，不隨地圖移動（road-segments spec） */
+.legend {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 13px;
+}
+
+.legend-group-label {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+/* 人行道為面，道路為線 — 圖例形狀呼應幾何型別 */
+.legend-item i.sw {
+  width: 18px;
+  height: 11px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 30%, transparent);
+  border: 1.5px solid var(--c);
+}
+
+.legend-item i.road {
+  width: 18px;
+  height: 0;
+  border-top: 3px solid var(--c);
+}
+
+.attribution {
+  flex: 0 0 auto;
+  padding: 7px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.attribution span { margin-right: 4px; }
+.attribution a { color: inherit; }
+
+@media (max-width: 640px) {
+  .topbar { flex-direction: column; gap: 4px; }
+  .legend { gap: 6px 12px; font-size: 12px; }
+}

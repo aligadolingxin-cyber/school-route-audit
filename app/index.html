@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>學區道路健檢</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+      integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="title">
+    <h1 data-i18n="app.title">學區道路健檢</h1>
+    <p class="subtitle" data-i18n="app.subtitle">以政府開放資料呈現學校周邊的步行環境</p>
+  </div>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+</header>
+
+<main class="layout">
+  <div id="map" role="application" aria-label="地圖"></div>
+
+  <!-- 圖例固定於地圖下側，文字與顏色並用（road-segments spec） -->
+  <div class="legend" id="legend">
+    <span class="legend-group-label" data-i18n="legend.clearWidth">人行道淨寬</span>
+    <span class="legend-item"><i class="sw" style="--c:#D1495B"></i><span data-i18n="legend.lt15">&lt; 1.5 m</span></span>
+    <span class="legend-item"><i class="sw" style="--c:#E8A33D"></i><span data-i18n="legend.15to25">1.5 – 2.5 m</span></span>
+    <span class="legend-item"><i class="sw" style="--c:#4C9A63"></i><span data-i18n="legend.gte25">&ge; 2.5 m</span></span>
+    <span class="legend-item"><i class="road" style="--c:#8A8A8A"></i><span data-i18n="legend.noRecord">查無人行道紀錄</span></span>
+  </div>
+</main>
+
+<footer class="attribution">
+  <span data-i18n="attr.label">資料來源：</span>
+  <span>內政部國土管理署「人行道」</span>·
+  <span>內政部警政署「傷亡道路交通事故資料」</span>·
+  <span>內政部國土測繪中心「各級學校範圍圖」</span>
+  <span data-i18n="attr.govLicence">（政府資料開放授權條款第 1 版）</span>·
+  <span>&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL 1.0)</span>·
+  <span>&copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a></span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+        integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
