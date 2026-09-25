@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>評估工作台｜學區道路健檢</title>
+<link rel="stylesheet" href="css/style.css?v=__BUILD__">
+<link rel="stylesheet" href="css/audit.css?v=__BUILD__">
+<!-- 與地圖共用同一把金鑰，由部署流程注入 -->
+<script>window.__GMAPS_KEY__ = '__GOOGLE_MAPS_KEY__';</script>
+</head>
+<body class="audit">
+
+<header class="topbar">
+  <div class="title">
+    <h1>評估工作台</h1>
+    <p class="subtitle" id="set-name">載入中…</p>
+  </div>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <span class="unexported" id="unexported" hidden></span>
+  <button class="toggle" id="btn-export">匯出</button>
+  <button class="toggle" id="btn-import">匯入</button>
+  <input type="file" id="file-import" accept="application/json" hidden>
+  <a class="toggle" href="index.html">← 地圖</a>
+</header>
+
+<div class="progress" id="progress"></div>
+
+<main class="audit-layout">
+  <section class="pane pane-pano">
+    <header class="pane-head">
+      <span id="pano-title">—</span>
+      <span class="pano-date" id="pano-date"></span>
+    </header>
+    <div id="pano"></div>
+    <p class="pano-msg" id="pano-msg" hidden></p>
+  </section>
+
+  <section class="pane pane-form">
+    <header class="unit-head">
+      <div>
+        <h2 id="unit-title">—</h2>
+        <p class="muted" id="unit-sub"></p>
+      </div>
+      <span class="unit-status" id="unit-status"></span>
+    </header>
+
+    <!-- 開放資料的對應欄位並陳作為對照，但不預填——預填會錨定判讀 -->
+    <details class="ref" id="ref" open>
+      <summary>開放資料怎麼說</summary>
+      <dl id="ref-list"></dl>
+      <p class="muted">僅供對照。請依街景自行判讀，不要照抄。</p>
+    </details>
+
+    <form id="form"></form>
+
+    <div class="unit-actions">
+      <button type="button" id="btn-done">標示完成</button>
+      <button type="button" id="btn-noimage">無影像，待補拍</button>
+      <span class="timer" id="timer"></span>
+    </div>
+  </section>
+</main>
+
+<nav class="unit-nav">
+  <button id="btn-prev">← 上一個</button>
+  <select id="unit-picker" aria-label="選擇單位"></select>
+  <button id="btn-next">下一個 →</button>
+</nav>
+
+<script type="module" src="js/audit.js?v=__BUILD__"></script>
+</body>
+</html>

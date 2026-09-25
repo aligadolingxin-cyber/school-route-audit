@@ -56,23 +56,26 @@ jobs:
           GMAPS_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           SHA="${GITHUB_SHA::7}"
-          sed -i "s/__BUILD__/${SHA}/g" app/index.html
+          # 每個 HTML 進入點都要處理，不只首頁——漏掉的那頁會整頁白掉
+          sed -i "s/__BUILD__/${SHA}/g" app/*.html
           # 未設定 secret 時置換為空字串，前端據此停用街景並說明原因。
           # 此金鑰在前端必然可見，安全性依靠 Google 端的 referrer 限制。
           if [ -n "$GMAPS_KEY" ]; then
-            sed -i "s|__GOOGLE_MAPS_KEY__|${GMAPS_KEY}|g" app/index.html
+            sed -i "s|__GOOGLE_MAPS_KEY__|${GMAPS_KEY}|g" app/*.html
             echo "已注入 Google Maps 金鑰"
           else
-            sed -i "s|__GOOGLE_MAPS_KEY__||g" app/index.html
+            sed -i "s|__GOOGLE_MAPS_KEY__||g" app/*.html
             echo "未設定 GOOGLE_MAPS_API_KEY，街景將停用"
           fi
           sed -i -E "s#(from ['\"]\./[^'\"]+\.js)(['\"])#\1?v=${SHA}\2#g" app/js/*.js
-          echo "--- index.html ---"
-          grep -o "?v=${SHA}" app/index.html | wc -l
+          echo "--- html ---"
+          grep -ho "?v=${SHA}" app/*.html | wc -l
           echo "--- js imports ---"
           grep -ho "?v=${SHA}" app/js/*.js | wc -l
-          if grep -q "__BUILD__" app/index.html; then
-            echo "仍有未替換的 __BUILD__" >&2; exit 1
+          if grep -q "__BUILD__\|__GOOGLE_MAPS_KEY__" app/*.html; then
+            echo "仍有未替換的佔位字串" >&2
+            grep -n "__BUILD__\|__GOOGLE_MAPS_KEY__" app/*.html >&2
+            exit 1
           fi
           if grep -qE "from ['\"]\./[^'\"]+\.js['\"]" app/js/*.js; then
             echo "仍有未加版本號的相對 import" >&2

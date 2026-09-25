@@ -1,0 +1,229 @@
+/* 評估工作台。共用 style.css 的變數與基礎樣式。 */
+
+body.audit { height: 100dvh; overflow: hidden; }
+
+.topbar .unexported {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #fdeaea;
+  color: #9b2c2c;
+  border: 1px solid #f3c7c7;
+  white-space: nowrap;
+}
+
+.progress {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 13px;
+}
+
+.progress b { font-size: 15px; }
+
+/* 街景與判準表並排。兩者必須同時可見——切換畫面作答就失去意義。 */
+.audit-layout {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.pane-pano { flex: 1 1 52%; border-right: 1px solid var(--line); }
+.pane-form { flex: 1 1 48%; overflow-y: auto; padding: 0 14px 16px; }
+
+.pane-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.pane-head > span:first-child {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#pano { flex: 1 1 auto; min-height: 0; }
+
+.unit-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 -14px;
+  padding: 10px 14px 8px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.unit-head h2 { margin: 0; font-size: 16px; }
+.unit-head .muted { margin: 2px 0 0; font-size: 12.5px; }
+
+.unit-status {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.unit-status[data-st="done"] { background: #e8f3ec; border-color: #b7dcc4; }
+.unit-status[data-st="in_progress"] { background: #fdf3e0; border-color: #e8cfa0; }
+.unit-status[data-st="no_image"] { background: #eee; }
+
+/* 開放資料對照。並陳但不預填——預填會錨定判讀。 */
+.ref {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  font-size: 12.5px;
+}
+
+.ref summary { cursor: pointer; color: var(--muted); }
+.ref dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 7px 0 4px; }
+.ref div { display: contents; }
+.ref dt { color: var(--muted); }
+.ref dd { margin: 0; }
+.ref .muted { margin: 4px 0 0; font-size: 11.5px; }
+
+.sec { border: 0; padding: 0; margin: 16px 0 0; }
+
+.sec legend {
+  padding: 0;
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.item { padding: 9px 0; border-bottom: 1px solid var(--line); }
+.item.cannot { opacity: .82; }
+.item .q { margin: 0 0 5px; font-size: 13.5px; }
+.item .help { margin: 0 0 6px; font-size: 12px; color: var(--muted); }
+
+.opts { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.opt input { margin: 0; }
+.opt.on { border-color: #1f2d3d; background: #eef1f4; font-weight: 600; }
+.opt-cannot { border-style: dashed; color: var(--muted); }
+.opt-cannot.on { border-style: solid; background: #f1f1f1; color: var(--fg); }
+
+.reason {
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 7px;
+  font: inherit;
+  font-size: 12.5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.tag {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.tag-low { background: #fdf3e0; border: 1px solid #e8cfa0; color: #7a5a1e; }
+.tag-draft { background: #eef1f6; border: 1px solid #ccd6e0; color: #46586b; }
+
+.unit-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 14px -14px 0;
+  padding: 10px 14px;
+  background: #fff;
+  border-top: 1px solid var(--line);
+}
+
+.unit-actions button {
+  font: inherit;
+  padding: 5px 13px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+#btn-done { background: #1f2d3d; border-color: #1f2d3d; color: #fff; }
+
+.timer {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+  align-items: baseline;
+  font-size: 12.5px;
+}
+
+.unit-nav {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.unit-nav button {
+  font: inherit;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.unit-nav select {
+  font: inherit;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* 窄視窗：街景在上、表單在下，兩者仍同時可見 */
+@media (max-width: 860px) {
+  .audit-layout { flex-direction: column; }
+  .pane-pano { flex: 0 0 38%; border-right: 0; border-bottom: 1px solid var(--line); }
+  .pane-form { flex: 1 1 auto; }
+}
