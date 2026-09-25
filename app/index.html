@@ -20,6 +20,29 @@
   <div class="status" id="status" role="status" aria-live="polite"></div>
 </header>
 
+<div class="filters">
+  <div class="filter-row">
+    <label class="field"><span class="field-label" data-i18n="filter.county">縣市</span>
+      <select id="county"></select>
+    </label>
+    <fieldset class="field"><legend class="field-label" data-i18n="filter.layers">圖層</legend>
+      <div class="chips" id="layers"></div>
+    </fieldset>
+  </div>
+  <div class="filter-row">
+    <fieldset class="field"><legend class="field-label" data-i18n="filter.levels">學校類型</legend>
+      <div class="chips" id="levels"></div>
+    </fieldset>
+  </div>
+  <div class="filter-row">
+    <fieldset class="field"><legend class="field-label" data-i18n="filter.profile">目標人群</legend>
+      <div class="chips" id="profile"></div>
+    </fieldset>
+  </div>
+</div>
+
+<div class="summary" id="summary" role="status" aria-live="polite"></div>
+
 <main class="layout">
   <div id="map" role="application" aria-label="地圖"></div>
 

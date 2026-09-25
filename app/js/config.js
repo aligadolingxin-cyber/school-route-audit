@@ -31,8 +31,19 @@ export const SCHOOL_LEVELS = [
 
 export const SCHOOL_COLOR = Object.fromEntries(SCHOOL_LEVELS.map((s) => [s.id, s.color]));
 
-// 步行生活圈半徑（公尺）。直線距離，非路網距離。
-export const WALKSHED_M = 300;
+// 步行生活圈半徑（公尺）。直線距離，非路網距離——實際走不走得到，
+// 正是本工具其餘圖層要回答的問題。
+//
+// 半徑取「五分鐘步行」乘以各族群的步行速度。速度值為暫定，
+// 待查既有文獻後校正（design 待決項）；兒童 300 m 與 spec 一致。
+export const WALKSHED_PROFILES = [
+  { id: 'child',   label: '兒童（7–12 歲）', speed: 1.0, radius: 300 },
+  { id: 'teen',    label: '青少年（13–18 歲）', speed: 1.3, radius: 390 },
+  { id: 'elderly', label: '長者', speed: 0.9, radius: 270 },
+  { id: 'wheel',   label: '輪椅', speed: 0.8, radius: 240 },
+];
+
+export const DEFAULT_PROFILE = 'child';
 
 // A1 事故點的受害者運具配色。
 //

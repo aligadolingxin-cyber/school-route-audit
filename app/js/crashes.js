@@ -25,32 +25,47 @@ function tooltipFor(p) {
   return `<b>${date} ${time}</b><br>${p.place}<br>死亡 ${p.deaths} 人<br>當事者：${parties}`;
 }
 
-export async function loadCounty(map, county, { onProgress } = {}) {
+const cache = new Map();
+
+/** 取得該縣市的事故資料，同一縣市只抓一次。部分縣市無檔案（該年無 A1 事故）。 */
+export async function fetchCounty(county) {
+  if (cache.has(county)) return cache.get(county);
+  const res = await fetch(`${CRASH_BASE}/${encodeURIComponent(county)}.geojson`);
+  if (!res.ok) {
+    if (res.status === 404) {
+      const empty = { type: 'FeatureCollection', years: [], features: [], missing: true };
+      cache.set(county, empty);
+      return empty;
+    }
+    throw new Error(`${county} 事故資料載入失敗（HTTP ${res.status}）`);
+  }
+  const fc = await res.json();
+  cache.set(county, fc);
+  return fc;
+}
+
+export async function render(map, county, { visible = true } = {}) {
   if (layer) {
     map.removeLayer(layer);
     layer = null;
   }
 
-  const t0 = performance.now();
-  onProgress?.(`載入 ${county} 事故資料…`);
+  const fc = await fetchCounty(county);
+  const deaths = fc.features.reduce((s, f) => s + f.properties.deaths, 0);
+  const ped = fc.features.filter((f) => f.properties.kind === 'pedestrian').length;
+  const stat = { county, years: fc.years, count: fc.features.length, deaths,
+                 pedestrian: ped, missing: !!fc.missing };
 
-  const res = await fetch(`${CRASH_BASE}/${encodeURIComponent(county)}.geojson`);
-  if (!res.ok) throw new Error(`${county} 事故資料載入失敗（HTTP ${res.status}）`);
-  const fc = await res.json();
+  if (!visible || !fc.features.length) return stat;
 
   layer = L.geoJSON(fc, {
     pointToLayer: markerFor,
     onEachFeature: (f, l) => l.bindTooltip(tooltipFor(f.properties), { sticky: true }),
   }).addTo(map);
-
-  const deaths = fc.features.reduce((s, f) => s + f.properties.deaths, 0);
-  const ped = fc.features.filter((f) => f.properties.kind === 'pedestrian').length;
-  return {
-    county, years: fc.years, count: fc.features.length, deaths, pedestrian: ped,
-    ms: Math.round(performance.now() - t0),
-  };
+  return stat;
 }
 
-export function getLayer() {
-  return layer;
+export function clear(map) {
+  if (layer) map.removeLayer(layer);
+  layer = null;
 }

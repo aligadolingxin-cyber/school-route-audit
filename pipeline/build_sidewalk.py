@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import argparse
+import collections
 import gzip
 import hashlib
 import json
@@ -65,7 +66,7 @@ def rep_point(geom):
     return round(c.x, PRECISION), round(c.y, PRECISION)
 
 
-def make_id(county: str, props: dict, geom) -> str:
+def base_key(county: str, props: dict, geom) -> str:
     """
     穩定識別碼。
 
@@ -73,14 +74,38 @@ def make_id(county: str, props: dict, geom) -> str:
     只有 7,417 個相異值對 18,304 筆——忠孝東路七段／向陽路那組
     就重複 26 次。故須加入代表點才能區辨。
 
-    加入代表點後全縣市唯一（去重之後）。識別碼一旦被評估紀錄引用
-    即不得變動，故此函式的輸入與捨入位數不可再改。
+    代表點仍不足：台中市北屯區軍福九路有兩筆同路名、同起訖、同側、
+    形心相同（小數 6 位）而幾何重疊 97.6% 的紀錄，量測值卻不同
+    （寬 3.20 對 3.00、坡 3 對 4）。那是來源把同一段人行道登錄了
+    兩次。不合併而以量測值區辨，使地圖誠實反映來源確有兩筆。
+
+    識別碼一旦被評估紀錄引用即不得變動，故此函式的輸入與捨入位數
+    不可再改。
     """
     x, y = rep_point(geom)
-    parts = [county, props["VILL_NAME"], props["NAME"], props["PSTART"], props["PEND"],
-             str(props["SW_DIRECT"]), f"{x:.6f}", f"{y:.6f}"]
-    h = hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()
-    return h[:12]
+    # 台北市十個欄位皆 100% 填值，其他縣市不然（PEND 等可能為 null），
+    # 故一律轉成字串再併；None 與空字串視為同一件事。
+    def s(v):
+        return "" if v is None else str(v)
+
+    parts = [county, s(props.get("VILL_NAME")), s(props.get("NAME")),
+             s(props.get("PSTART")), s(props.get("PEND")), s(props.get("SW_DIRECT")),
+             f"{x:.6f}", f"{y:.6f}",
+             s(props.get("SW_WTH")), s(props.get("SWW_WTH")),
+             s(props.get("SW_LENG")), s(props.get("SW_RAMP"))]
+    return "\x1f".join(parts)
+
+
+def geom_digest(raw_geometry: dict) -> str:
+    """簡化前的原始幾何雜湊。用簡化後的會使調整容差時所有識別碼一起變。"""
+    return hashlib.sha256(
+        json.dumps(raw_geometry, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:6]
+
+
+def make_id(key: str, disambiguator: str = "") -> str:
+    return hashlib.sha256((key + ("\x1e" + disambiguator if disambiguator else ""))
+                          .encode("utf-8")).hexdigest()[:12]
 
 
 def round_geom(obj, nd: int):
@@ -148,16 +173,24 @@ def process_county(county: str, ym: str, data: dict, tol: float, nd: int):
         seen.add(sig)
         uniq.append(f)
 
+    # 兩趟：先算基礎鍵，再決定哪些需要幾何雜湊來區辨。
+    #
+    # 高雄市有 9 組連量測值都相同、僅幾何不同的紀錄。若無條件把幾何
+    # 納入識別碼，往後調整簡化容差就會使全部識別碼一起變動，評估紀錄
+    # 全數失聯；故只對真正碰撞者加，且用簡化前的原始幾何。
+    keys = [base_key(county, f["properties"], shape(f["geometry"])) for f in uniq]
+    dup_keys = {k for k, n in collections.Counter(keys).items() if n > 1}
+
     out, ids, bands = [], set(), {"lt15": 0, "b1525": 0, "gte25": 0, "no_data": 0}
     vtx_before = vtx_after = 0
     collisions = 0
 
-    for f in uniq:
+    for f, key in zip(uniq, keys):
         p = f["properties"]
         geom = shape(f["geometry"])
         vtx_before += len(geom.wkt.split(","))
 
-        fid = make_id(county, p, geom)
+        fid = make_id(key, geom_digest(f["geometry"]) if key in dup_keys else "")
         if fid in ids:
             collisions += 1
         ids.add(fid)

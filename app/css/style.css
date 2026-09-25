@@ -58,6 +58,136 @@ body {
 
 .status[data-state="error"] { color: var(--w-red); }
 
+/* ---- 篩選列 ---- */
+
+.filters {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .1em;
+  white-space: nowrap;
+  padding: 0;
+}
+
+.field select {
+  font: inherit;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: inherit;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  background: #fff;
+}
+
+.chip input {
+  margin: 0;
+  accent-color: var(--c, #555);
+}
+
+.chip:has(input:checked) {
+  border-color: var(--c, #555);
+  background: color-mix(in srgb, var(--c, #555) 10%, #fff);
+}
+
+.chip:has(input:focus-visible) {
+  outline: 2px solid #4E79A7;
+  outline-offset: 1px;
+}
+
+/* ---- 統計摘要 ---- */
+
+.summary {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.summary:empty { display: none; }
+
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  align-items: baseline;
+}
+
+/* 查無人行道紀錄與三個級距同等視覺份量（road-segments spec） */
+.stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.stat i {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  align-self: center;
+  background: color-mix(in srgb, var(--c) 30%, transparent);
+  border: 1.5px solid var(--c);
+}
+
+.stat b { font-size: 16px; font-weight: 650; }
+.stat .unit { color: var(--muted); font-size: 12px; }
+.stat .lbl { color: var(--muted); }
+.stat.pending b { color: var(--muted); }
+
+.stat-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.stat-line b { color: var(--fg); font-weight: 600; }
+
 .layout {
   flex: 1 1 auto;
   display: flex;
