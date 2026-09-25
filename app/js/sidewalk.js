@@ -32,7 +32,7 @@ export function bandCounts(fc) {
   return out;
 }
 
-export async function render(map, county, { onProgress, visible = true } = {}) {
+export async function render(map, county, { onProgress, visible = true, onSelect } = {}) {
   if (layer) {
     map.removeLayer(layer);
     layer = null;
@@ -54,7 +54,15 @@ export async function render(map, county, { onProgress, visible = true } = {}) {
     await new Promise((r) => setTimeout(r, 0));
   }
 
-  layer = L.geoJSON(fc, { style: styleFor }).addTo(map);
+  layer = L.geoJSON(fc, {
+    style: styleFor,
+    onEachFeature: onSelect
+      ? (f, l) => l.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          onSelect('sidewalk', f, l);
+        })
+      : undefined,
+  }).addTo(map);
   const tDrawn = performance.now();
 
   return {
@@ -71,4 +79,13 @@ export async function render(map, county, { onProgress, visible = true } = {}) {
 export function clear(map) {
   if (layer) map.removeLayer(layer);
   layer = null;
+}
+
+export function getLayer() {
+  return layer;
+}
+
+/** 回復某圖層原本的樣式，供解除選取使用。 */
+export function resetStyle(l) {
+  if (layer && l) layer.resetStyle(l);
 }

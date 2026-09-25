@@ -34,7 +34,7 @@ export async function fetchCounty(county) {
   return fc;
 }
 
-export async function render(map, county, { visible = true } = {}) {
+export async function render(map, county, { visible = true, onSelect } = {}) {
   if (layer) {
     map.removeLayer(layer);
     layer = null;
@@ -44,6 +44,12 @@ export async function render(map, county, { visible = true } = {}) {
 
   layer = L.geoJSON(fc, {
     style: { color: NO_RECORD.color, weight: 2, opacity: 0.75 },
+    onEachFeature: onSelect
+      ? (f, l) => l.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          onSelect('road', f, l);
+        })
+      : undefined,
   }).addTo(map);
   // 人行道與學校在上，灰線退居底層
   layer.bringToBack();
@@ -53,4 +59,12 @@ export async function render(map, county, { visible = true } = {}) {
 export function clear(map) {
   if (layer) map.removeLayer(layer);
   layer = null;
+}
+
+export function getLayer() {
+  return layer;
+}
+
+export function resetStyle(l) {
+  if (layer && l) layer.resetStyle(l);
 }

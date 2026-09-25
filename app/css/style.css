@@ -212,12 +212,137 @@ body {
   min-height: 0;
 }
 
+.map-wrap {
+  flex: 1 1 auto;
+  position: relative;
+  display: flex;
+  /* 篩選列在窄視窗會換成多行，若 min-height 為 0，地圖會被擠成零高度。 */
+  min-height: 380px;
+}
+
 #map {
   flex: 1 1 auto;
-  /* 篩選列在窄視窗會換成多行，若 min-height 為 0，地圖會被擠成零高度。 */
-  min-height: 300px;
+  min-height: 0;
   background: var(--panel);
 }
+
+/* ---- 路段詳細面板 ---- */
+
+.detail {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  width: min(340px, calc(100% - 20px));
+  overflow-y: auto;
+  padding: 12px 14px 14px;
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .12);
+  z-index: 500;   /* 高於 Leaflet 的圖層窗格，低於彈出視窗 */
+  font-size: 13.5px;
+}
+
+.detail[hidden] { display: none; }
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.detail h2 { margin: 0; font-size: 16px; }
+.detail h3 { margin: 14px 0 5px; font-size: 12px; letter-spacing: .08em; color: var(--muted); }
+.detail p { margin: 3px 0; }
+.detail .muted { color: var(--muted); font-size: 12.5px; }
+.detail .na { color: var(--muted); }
+
+.detail .close {
+  border: 0;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0 2px;
+}
+
+.band-tag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--c);
+  border: 1.5px solid var(--c);
+  background: color-mix(in srgb, var(--c) 12%, #fff);
+}
+
+.facts {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+}
+
+.facts div { display: contents; }
+.facts dt { color: var(--muted); font-size: 12.5px; }
+.facts dd { margin: 0; }
+
+/* 每條摘要都附其資料依據。規則式產生，不使用語言模型（design D5）。 */
+.rules { margin: 0; padding: 0; list-style: none; }
+
+.rules li {
+  padding: 5px 0 5px 9px;
+  border-left: 3px solid var(--line);
+  margin-bottom: 4px;
+}
+
+.rules li.lv-bad { border-left-color: var(--w-red); }
+.rules li.lv-ok { border-left-color: var(--w-green); }
+.rules li.lv-unknown { border-left-color: var(--w-none); }
+.rules li.lv-info { border-left-color: #6d8ab5; }
+
+.rules .basis {
+  display: block;
+  color: var(--muted);
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.crash-list { margin: 0; padding: 0; list-style: none; }
+
+.crash-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12.5px;
+}
+
+.crash-list i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 1.2px #fff, 0 0 0 1.8px rgba(0, 0, 0, .2);
+  flex: 0 0 auto;
+}
+
+.detail-actions { margin-top: 14px; }
+
+.detail-actions button {
+  font: inherit;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.detail-actions button:disabled { color: var(--muted); cursor: default; }
 
 /* 底圖降飽和。NLSC 通用電子地圖的道路本身是彩色的，會與淨寬分級的
    紅／黃／綠爭奪語意（design D4）。降飽和後地名與路網仍可讀，

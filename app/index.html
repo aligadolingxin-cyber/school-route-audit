@@ -44,7 +44,10 @@
 <div class="summary" id="summary" role="status" aria-live="polite"></div>
 
 <main class="layout">
-  <div id="map" role="application" aria-label="地圖"></div>
+  <div class="map-wrap">
+    <div id="map" role="application" aria-label="地圖"></div>
+    <aside class="detail" id="detail" hidden aria-label="路段詳細"></aside>
+  </div>
 
   <!-- 圖例固定於地圖下側，文字與顏色並用（road-segments spec） -->
   <div class="legend" id="legend">

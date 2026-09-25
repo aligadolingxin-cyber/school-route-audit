@@ -2,6 +2,7 @@
 
 import { SCHOOL_LEVELS, WALKSHED_PROFILES, DEFAULT_PROFILE, WIDTH_BANDS } from './config.js';
 import { loadCounties } from './counties.js';
+import { panelHtml, nearbyCrashes } from './detail.js';
 import * as sidewalk from './sidewalk.js';
 import * as roads from './roads.js';
 import * as schools from './schools.js';
@@ -17,7 +18,12 @@ const el = {
   profile: document.getElementById('profile'),
   layers: document.getElementById('layers'),
   summary: document.getElementById('summary'),
+  detail: document.getElementById('detail'),
 };
+
+// 選取狀態。選取樣式直接套在被點的圖層上，解除時以 resetStyle 還原。
+const SELECTED_STYLE = { color: '#111', weight: 3, opacity: 1 };
+let selected = null;   // { kind, layer, feature }
 
 const state = {
   county: DEFAULT_COUNTY,
@@ -146,6 +152,39 @@ function renderSummary(sw, rd, sc, cr) {
     </div>`;
 }
 
+// ---- 選取與詳細面板 ------------------------------------------------------
+
+function clearSelection() {
+  if (selected) {
+    const mod = selected.kind === 'sidewalk' ? sidewalk : roads;
+    mod.resetStyle(selected.layer);
+  }
+  selected = null;
+  el.detail.hidden = true;
+  el.detail.innerHTML = '';
+}
+
+async function select(kind, feature, layer) {
+  clearSelection();
+  selected = { kind, feature, layer };
+  layer.setStyle(SELECTED_STYLE);
+  layer.bringToFront();
+
+  const rec = state.counties.find((c) => c.name === state.county);
+  const crashFC = rec?.files.crashes ? await crashes.fetchCounty(rec.files.crashes) : null;
+  const near = nearbyCrashes(feature.geometry, crashFC);
+
+  el.detail.innerHTML = panelHtml(kind, feature.properties, near);
+  el.detail.hidden = false;
+  el.detail.scrollTop = 0;
+  document.getElementById('detail-close')?.addEventListener('click', clearSelection);
+  document.getElementById('detail-compare')?.addEventListener('click', (e) => {
+    // 比較面板為 task 12；此處先確認入口存在且可回饋
+    e.target.disabled = true;
+    e.target.textContent = '比較面板尚未實作';
+  });
+}
+
 // ---- 繪製 ----------------------------------------------------------------
 
 async function refresh({ fit = false } = {}) {
@@ -165,13 +204,15 @@ async function refresh({ fit = false } = {}) {
     if (!state.show.schools) schools.clear(map);
     if (!state.show.crashes) crashes.clear(map);
 
+    clearSelection();
+
     const rdStats = await roads.statsFor(state.county);
     const rd = { stats: rdStats };
-    await roads.render(map, state.county, { visible: state.show.roads });
+    await roads.render(map, state.county, { visible: state.show.roads, onSelect: select });
 
     const sw = file.sidewalk
       ? await sidewalk.render(map, file.sidewalk, {
-          onProgress: setStatus, visible: state.show.sidewalk })
+          onProgress: setStatus, visible: state.show.sidewalk, onSelect: select })
       : { county: state.county, count: 0, bands: { lt15: 0, b1525: 0, gte25: 0 },
           dataYm: null, missing: true };
     const sc = file.schools
