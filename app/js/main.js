@@ -169,10 +169,13 @@ function renderSummary(sw, rd, sc, cr) {
  */
 function initFiltersToggle() {
   const KEY = 'filters-collapsed';
-  let collapsed = false;
+  // 小視窗預設收合。展開時篩選列會吃掉一半以上的高度，地圖只剩兩百多
+  // 像素——那不是地圖，是縮圖。
+  let collapsed = window.innerHeight < 720 || window.innerWidth < 600;
   try {
-    collapsed = localStorage.getItem(KEY) === '1';
-  } catch { /* 無痕視窗等情形，維持展開 */ }
+    const saved = localStorage.getItem(KEY);
+    if (saved !== null) collapsed = saved === '1';
+  } catch { /* 無痕視窗等情形，沿用上面的預設 */ }
 
   const apply = () => {
     el.filters.hidden = collapsed;
@@ -353,8 +356,14 @@ async function refresh({ fit = false } = {}) {
       : { county: state.county, count: 0, deaths: 0, pedestrian: 0, years: [], missing: true };
 
     if (fit) {
-      const src = schools.getLayers().blockLayer ?? sidewalk.getLayer?.();
-      if (src?.getBounds && src.getBounds().isValid()) map.fitBounds(src.getBounds());
+      // 容器尺寸必須先確定。版面改為填滿視窗後，初次載入時地圖容器
+      // 可能尚未定高，fitBounds 會據此算出全世界的縮放層級。
+      map.invalidateSize();
+      const src = schools.getLayers().blockLayer ?? sidewalk.getLayer();
+      const b = src?.getBounds?.();
+      if (b?.isValid()) {
+        map.fitBounds(b, { padding: [8, 8] });
+      }
     }
 
     renderSummary(sw, rd, sc, cr);

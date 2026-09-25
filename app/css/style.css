@@ -73,7 +73,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 38vh;
+  max-height: 34vh;
   overflow-y: auto;
 }
 
@@ -179,7 +179,7 @@ body {
   padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
-  max-height: 26vh;
+  max-height: 22vh;
   overflow-y: auto;
 }
 
@@ -253,7 +253,7 @@ body {
   position: relative;
   display: flex;
   /* 篩選列可收合且自行捲動，故地圖只需一個不致消失的下限 */
-  min-height: 220px;
+  min-height: 260px;
 }
 
 #map {
