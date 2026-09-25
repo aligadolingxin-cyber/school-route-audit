@@ -31,6 +31,17 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      # 以 commit SHA 取代 __BUILD__，使每次部署的 CSS/JS 網址都不同。
+      # 沒有這一步，瀏覽器會沿用快取的舊版模組，改動不會生效。
+      - name: 注入版本號
+        run: |
+          sed -i "s/__BUILD__/${GITHUB_SHA::7}/g" app/index.html
+          grep -c "${GITHUB_SHA::7}" app/index.html
+          if grep -q "__BUILD__" app/index.html; then
+            echo "仍有未替換的 __BUILD__" >&2
+            exit 1
+          fi
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app
