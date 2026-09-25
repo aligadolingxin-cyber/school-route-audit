@@ -160,13 +160,23 @@ export function panelHtml(kind, p, crashes, { inCompare = false } = {}) {
   const lacking = missingFields(kind, p);
 
   return `
-    <header class="detail-head">
-      <div>
-        <h2>${title}</h2>
-        <p class="muted">${sub}</p>
+    <!-- 標題與主要動作固定於面板頂端。動作若隨內容捲動，窄視窗下
+         會落在可視區下方數百像素處，等同不存在。 -->
+    <div class="detail-top">
+      <header class="detail-head">
+        <div>
+          <h2>${title}</h2>
+          <p class="muted">${sub}</p>
+        </div>
+        <button class="close" id="detail-close" aria-label="關閉">×</button>
+      </header>
+      <div class="detail-actions">
+        <button id="detail-pano">開啟街景</button>
+        <button id="detail-compare"${inCompare ? ' disabled' : ''}>
+          ${inCompare ? '已加入比較' : '加入比較'}
+        </button>
       </div>
-      <button class="close" id="detail-close" aria-label="關閉">×</button>
-    </header>
+    </div>
 
     ${band ? `<div class="band-tag" style="--c:${band.color}">${band.label}</div>` : ''}
 
@@ -194,12 +204,5 @@ export function panelHtml(kind, p, crashes, { inCompare = false } = {}) {
     <section>
       <h3>周邊事故</h3>
       ${crashRows(crashes)}
-    </section>
-
-    <div class="detail-actions">
-      <button id="detail-pano">開啟街景</button>
-      <button id="detail-compare"${inCompare ? ' disabled' : ''}>
-        ${inCompare ? '已加入比較' : '加入比較'}
-      </button>
-    </div>`;
+    </section>`;
 }

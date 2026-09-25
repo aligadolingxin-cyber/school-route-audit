@@ -282,6 +282,17 @@ body {
 
 .detail[hidden] { display: none; }
 
+/* 標題與動作作為一個整體固定於面板頂端 */
+.detail-top {
+  position: sticky;
+  top: -12px;
+  z-index: 3;
+  margin: -12px -14px 0;
+  padding: 12px 14px 8px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
 .detail-head {
   display: flex;
   align-items: flex-start;
@@ -367,7 +378,11 @@ body {
   flex: 0 0 auto;
 }
 
-.detail-actions { margin-top: 14px; }
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
 
 .detail-actions button {
   font: inherit;
@@ -614,8 +629,11 @@ body {
     right: 10px;
     bottom: auto;
     width: auto;
-    max-height: 48%;
+    max-height: 70%;
   }
+
+  /* 街景開著時讓出空間，兩者不重疊 */
+  .map-wrap:has(.pano-wrap:not([hidden])) .detail { max-height: 46%; }
 
   .pano-wrap {
     left: 10px;
