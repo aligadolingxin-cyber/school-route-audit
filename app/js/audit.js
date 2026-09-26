@@ -4,6 +4,7 @@ import * as data from './audit-data.js';
 import * as store from './audit-store.js';
 import * as streetview from './streetview.js';
 import * as miniMap from './audit-map.js';
+import * as sync from './audit-sync.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -205,6 +206,84 @@ async function openPano(u) {
   }
 }
 
+// ---- 同步 ----------------------------------------------------------------
+
+function refreshSyncUi() {
+  const on = sync.isConfigured();
+  el('btn-sync').hidden = !on;
+  el('btn-team').hidden = !on;
+  el('who').hidden = !on;
+  if (on) el('who').textContent = sync.evaluator();
+}
+
+function bindSync() {
+  sync.loadConfig();
+  refreshSyncUi();
+
+  const dlg = el('dlg-sync');
+  el('btn-synccfg').addEventListener('click', () => {
+    const c = sync.loadConfig();
+    el('cfg-evaluator').value = c.evaluator;
+    el('cfg-endpoint').value = c.endpoint;
+    el('cfg-token').value = c.token;
+    dlg.showModal();
+  });
+  dlg.addEventListener('close', () => {
+    if (dlg.returnValue !== 'save') return;
+    sync.saveConfig({
+      evaluator: el('cfg-evaluator').value.trim(),
+      endpoint: el('cfg-endpoint').value.trim(),
+      token: el('cfg-token').value.trim(),
+    });
+    refreshSyncUi();
+    setStatus(sync.isConfigured() ? '同步設定已儲存。' : '三項都要填才會啟用同步。');
+  });
+
+  el('btn-sync').addEventListener('click', async () => {
+    store.stopTimer();
+    setStatus('同步中…');
+    try {
+      const r = await sync.push(store.buildExport(units, items, instrument));
+      setStatus(`已同步 ${r.written} 筆，署名 ${r.evaluator}。`);
+    } catch (err) {
+      // 同步失敗不影響本機資料——localStorage 仍是主要儲存
+      setStatus(`${err.message}（本機資料未受影響，可稍後再試或改用匯出）`, 'error');
+    }
+    store.startTimer(current().id);
+  });
+
+  el('btn-team').addEventListener('click', async () => {
+    const d = el('dlg-team');
+    el('team-body').textContent = '載入中…';
+    d.showModal();
+    try {
+      const { records, assignments } = await sync.pull();
+      el('team-body').innerHTML = teamHtml(sync.aggregate(records), assignments);
+    } catch (err) {
+      el('team-body').textContent = err.message;
+    }
+  });
+  el('team-close').addEventListener('click', () => el('dlg-team').close());
+}
+
+function teamHtml(agg, assignments) {
+  const rows = agg.evaluators.map((e) => `
+    <tr><td>${e.evaluator}</td><td>${e.done}</td><td>${e.inProgress}</td>
+        <td>${fmtSec(e.seconds)}</td></tr>`).join('');
+  const conflict = agg.conflicts.length ? `
+    <p class="warn">有 ${agg.conflicts.length} 段由多人評估：
+      ${agg.conflicts.map((c) => `${c.unitId}（${c.evaluators.join('、')}）`).join('；')}。
+      本工具的設定是分工，取哪一份需要人決定，程式不自行平均。</p>` : '';
+  return `
+    <p>全體已完成 <b>${agg.totalDone}</b> / ${units.length} 段
+      ${assignments?.length ? `・分派表 ${assignments.length} 筆` : '・分派表為空，所有人可評全部'}</p>
+    <table class="team">
+      <thead><tr><th>評估者</th><th>已完成</th><th>進行中</th><th>累計耗時</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="4">尚無資料</td></tr>'}</tbody>
+    </table>
+    ${conflict}`;
+}
+
 function bind() {
   // 閒置偵測。街景的互動發生在 Google 自己的畫布裡，事件未必冒泡到
   // document，故視角變動另行通知（見 openPano 的 onMove）。
@@ -272,6 +351,7 @@ function bind() {
     store.startTimer(current().id);
   });
 
+  bindSync();
   el('btn-import').addEventListener('click', () => el('file-import').click());
   el('file-import').addEventListener('change', async (e) => {
     const file = e.target.files?.[0];

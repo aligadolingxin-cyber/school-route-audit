@@ -21,11 +21,48 @@
   </div>
   <div class="status" id="status" role="status" aria-live="polite"></div>
   <span class="unexported" id="unexported" hidden></span>
+  <span class="who" id="who" hidden></span>
+  <button class="toggle" id="btn-sync" hidden>同步</button>
+  <button class="toggle" id="btn-team" hidden>彙總</button>
+  <button class="toggle" id="btn-synccfg">同步設定</button>
   <button class="toggle" id="btn-export">匯出</button>
   <button class="toggle" id="btn-import">匯入</button>
   <input type="file" id="file-import" accept="application/json" hidden>
   <a class="toggle" href="index.html">← 地圖</a>
 </header>
+
+<dialog id="dlg-sync">
+  <form method="dialog" class="dlg-body">
+    <h2>同步設定</h2>
+    <p class="muted">三項都存在你自己的瀏覽器，不進版本庫。設定方式見
+      <code>integrations/google-sheets/README.md</code>。</p>
+    <label>你的署名
+      <input id="cfg-evaluator" placeholder="例如：王小明" autocomplete="off">
+    </label>
+    <label>端點網址
+      <input id="cfg-endpoint" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+    </label>
+    <label>TOKEN
+      <input id="cfg-token" placeholder="與 Apps Script 中設定的字串相同" autocomplete="off">
+    </label>
+    <p class="warn">這不是權限控制。端點對任何人開放，TOKEN 只是路障——
+      真正的保護是網址不公開。</p>
+    <menu>
+      <button value="cancel">取消</button>
+      <button value="save" id="cfg-save">儲存</button>
+    </menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-team">
+  <div class="dlg-body">
+    <h2>全體彙總</h2>
+    <div id="team-body">載入中…</div>
+    <menu>
+      <button id="team-close">關閉</button>
+    </menu>
+  </div>
+</dialog>
 
 <div class="progress" id="progress"></div>
 
