@@ -32,6 +32,8 @@ const el = {
   compare: document.getElementById('compare'),
   compareToggle: document.getElementById('compare-toggle'),
   compareCount: document.getElementById('compare-count'),
+  legendShed: document.getElementById('legend-shed'),
+  legendShedText: document.getElementById('legend-shed-text'),
 };
 
 // 選取狀態。選取樣式直接套在被點的圖層上，解除時以 resetStyle 還原。
@@ -70,7 +72,26 @@ function initMap() {
   L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', {
     maxZoom: 20,
   }).addTo(map);
+  // 生活圈只在夠近的層級才畫，所以縮放時要重新判斷並更新圖例
+  map.on('zoomend', updateSheds);
   window.map = map;
+}
+
+/**
+ * 同步生活圈圖層與圖例。
+ *
+ * 圖例要跟著族群改寫半徑——選了長者卻仍寫「300 m」是錯的；
+ * 被縮放門檻擋下來時也要說出來，否則看起來像功能壞了。
+ */
+function updateSheds() {
+  const { radius } = profileOf(state.profile);
+  const legible = schools.syncSheds(map);
+  if (!el.legendShedText) return;
+  const on = state.show.schools;
+  el.legendShedText.textContent = on && legible
+    ? `${radius} m 生活圈`
+    : `${radius} m 生活圈${on ? '（放大後顯示）' : '（學校圖層已關閉）'}`;
+  el.legendShed?.classList.toggle('off', !(on && legible));
 }
 
 // ---- 介面 ----------------------------------------------------------------
@@ -437,6 +458,7 @@ async function refresh({ fit = false } = {}) {
       }
     }
 
+    updateSheds();
     renderSummary(sw, rd, sc, cr);
     setStatus('');
     console.info('[圖層]', { sidewalk: sw, roads: rd, schools: sc, crashes: cr });

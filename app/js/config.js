@@ -45,6 +45,12 @@ export const WALKSHED_PROFILES = [
 
 export const DEFAULT_PROFILE = 'child';
 
+// 生活圈在縣市尺度下畫出來只有一兩個像素，看不見也沒有意義——300 公尺
+// 在整個台北市的範圍裡是一個點。低於此層級不繪製，改由圖例說明，
+// 以免使用者以為功能壞了。zoom 13 時最小的半徑（輪椅 240 m）約為
+// 14 像素，是能辨認出圓形的下限。
+export const WALKSHED_MIN_ZOOM = 13;
+
 // A1 事故點的受害者運具配色。
 //
 // 刻意不用紅色標行人——紅色已是「淨寬 < 1.5 m」，而本圖層最關鍵的
