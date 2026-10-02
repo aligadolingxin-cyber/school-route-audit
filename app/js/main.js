@@ -78,6 +78,18 @@ function initMap() {
 }
 
 /**
+ * 點學校就移到該校，並讓整個生活圈入鏡。
+ *
+ * 取景以生活圈而非校地為準：使用者點學校多半是要看周邊而不是校地
+ * 本身，而且這個範圍必然在生活圈的顯示門檻之上，不會發生「跳過去
+ * 了卻仍然看不到圈」。半徑隨族群改變，取景也跟著變。
+ */
+function zoomToSchool(feature, layer) {
+  const { radius } = profileOf(state.profile);
+  map.fitBounds(layer.getBounds().getCenter().toBounds(radius * 2), { padding: [20, 20] });
+}
+
+/**
  * 同步生活圈圖層與圖例。
  *
  * 圖例要跟著族群改寫半徑——選了長者卻仍寫「300 m」是錯的；
@@ -441,7 +453,8 @@ async function refresh({ fit = false } = {}) {
           dataYm: null, missing: true };
     const sc = file.schools
       ? await schools.render(map, file.schools, {
-          levels: [...state.levels], radius, visible: state.show.schools })
+          levels: [...state.levels], radius, visible: state.show.schools,
+          onPick: zoomToSchool })
       : { county: state.county, count: 0, total: 0, levels: {}, missing: true };
     const cr = file.crashes
       ? await crashes.render(map, file.crashes, { visible: state.show.crashes })

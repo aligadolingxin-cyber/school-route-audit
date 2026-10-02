@@ -37,6 +37,11 @@ function walkshedFor(feature, radius) {
   });
 }
 
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"]/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
 const cache = new Map();
 
 /** 取得該縣市的學校資料，同一縣市只抓一次。 */
@@ -50,7 +55,7 @@ export async function fetchCounty(county) {
 }
 
 /** 依目前的類型篩選與生活圈半徑重繪。資料已快取時不重抓。 */
-export async function render(map, county, { levels, radius, visible = true } = {}) {
+export async function render(map, county, { levels, radius, visible = true, onPick } = {}) {
   for (const l of [blockLayer, shedLayer]) if (l) map.removeLayer(l);
   blockLayer = shedLayer = null;
 
@@ -62,8 +67,16 @@ export async function render(map, county, { levels, radius, visible = true } = {
 
   shedLayer = L.layerGroup(feats.map((f) => walkshedFor(f, radius)));
   syncSheds(map);
-  blockLayer = L.geoJSON({ type: 'FeatureCollection', features: feats }, { style: styleFor })
-    .addTo(map);
+  blockLayer = L.geoJSON({ type: 'FeatureCollection', features: feats }, {
+    style: styleFor,
+    onEachFeature: (feature, layer) => {
+      const name = feature.properties?.name ?? '未提供';
+      layer.bindTooltip(
+        `<b>${escapeHtml(name)}</b><br><span class="tip-hint">點擊放大至生活圈</span>`,
+        { sticky: true });
+      if (onPick) layer.on('click', () => onPick(feature, layer));
+    },
+  }).addTo(map);
 
   const byLevel = {};
   for (const f of feats) byLevel[f.properties.level] = (byLevel[f.properties.level] ?? 0) + 1;

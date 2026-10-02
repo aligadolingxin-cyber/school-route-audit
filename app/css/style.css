@@ -726,6 +726,9 @@ body {
 /* 生活圈被縮放門檻擋下、或學校圖層關閉時，圖例要看得出是停用狀態 */
 .legend-item.off { opacity: .45; }
 
+/* 學校提示：名稱之外說明點下去會發生什麼，否則多邊形看起來不可點 */
+.tip-hint { color: var(--muted); font-size: 11.5px; }
+
 /* 事故點：深色加白圈，確保疊在紅黃綠灰任一底色上都看得見 */
 .legend-item i.pt {
   width: 11px;
